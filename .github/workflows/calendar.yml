@@ -12,7 +12,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'feed/curated/**'
+      - 'feed/curated/*.json'
       - 'feed/curated.json'
       - 'feed/feeds.json'
       - 'public/data/venues.json'
