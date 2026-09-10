@@ -36,6 +36,10 @@ from sources.http import polite_get                            # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent
 OUTPUT = ROOT / "public" / "data" / "events.json"
 CURATED = ROOT / "feed" / "curated.json"
+# One file per approved listing. Listings sent in by email arrive as one new
+# file per pull request, so two submissions merged the same day never conflict
+# the way two appends to one shared JSON array eventually would.
+CURATED_DIR = ROOT / "feed" / "curated"
 
 KINDS = {"reading", "openmic", "workshop", "launch", "panel"}
 REGIONS = {
@@ -54,11 +58,17 @@ MAX_EVENTS = 400
 # validation
 # ---------------------------------------------------------------------------
 
-def why_invalid(listing: dict, venues: dict[str, dict]) -> str | None:
+def why_invalid(listing: dict, venues: dict[str, dict],
+                temporal: bool = True) -> str | None:
     """Return the reason a listing cannot be published, or None if it can.
 
     Returning the reason rather than a bool is what makes a dry run useful: an
     adapter silently dropping half a venue's calendar is a bug worth seeing.
+
+    temporal=False skips the date-window rules and checks shape alone. That is
+    for listings already approved and merged: a reading that happened last week
+    is not a malformed file, it is simply over, and the board drops it on its
+    own. A new proposal always gets the full check.
     """
     for field in REQUIRED_FIELDS:
         if not listing.get(field):
@@ -79,12 +89,13 @@ def why_invalid(listing: dict, venues: dict[str, dict]) -> str | None:
         when = date.fromisoformat(listing["date"])
     except ValueError:
         return f"unparseable date {listing['date']!r}"
-    today = date.today()
-    if when < today:
-        return "in the past"
-    # A date years out is a parsing bug, not a listing.
-    if when > today + timedelta(days=MAX_HORIZON_DAYS):
-        return f"beyond the {MAX_HORIZON_DAYS}-day horizon"
+    if temporal:
+        today = date.today()
+        if when < today:
+            return "in the past"
+        # A date years out is a parsing bug, not a listing.
+        if when > today + timedelta(days=MAX_HORIZON_DAYS):
+            return f"beyond the {MAX_HORIZON_DAYS}-day horizon"
     if not re.match(r"^https?://", listing["url"]):
         return f"url is not absolute http(s): {listing['url']!r}"
     if listing["kind"] != "workshop" and "registration" in listing:
@@ -108,10 +119,21 @@ def read_previous() -> dict:
 
 
 def read_curated() -> list[dict]:
-    if not CURATED.exists():
-        return []
-    data = json.loads(CURATED.read_text(encoding="utf-8"))
-    listings = [dict(listing) for listing in data.get("events", [])]
+    """Every hand-approved listing: curated.json plus each file in feed/curated/."""
+    listings: list[dict] = []
+    if CURATED.exists():
+        data = json.loads(CURATED.read_text(encoding="utf-8"))
+        listings.extend(dict(item) for item in data.get("events", []))
+    if CURATED_DIR.is_dir():
+        for path in sorted(CURATED_DIR.glob("*.json")):
+            try:
+                item = json.loads(path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError as exc:
+                # One malformed file must not take the whole board down with it.
+                print(f"  skipping {path.name}: not valid JSON ({exc})", file=sys.stderr)
+                continue
+            if isinstance(item, dict):
+                listings.append(item)
     for listing in listings:
         listing["source"] = "curated"
     return listings

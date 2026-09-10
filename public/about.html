@@ -43,19 +43,27 @@
 
     <h2>How the calendar is built</h2>
     <p>
-      A listings agent runs twice a day. For each venue with a verified
-      machine-readable calendar, it reads that calendar, normalises what it finds
-      into a single schema, throws out anything it cannot vouch for, and publishes
-      the result as one file the page reads. Hand-entered listings are merged on
-      every run and always beat a scraped one, because a person who checked
-      outranks a robot that parsed.
+      Mostly, venues and series organisers <a href="submit.html#tips">send their
+      dates in</a>. An assistant reads each email, drafts the listings it
+      describes, and proposes them. Every proposal is then checked against the
+      calendar&rsquo;s rules by code rather than by the assistant, and a person reads
+      it before it goes up. Nothing reaches the board on a model&rsquo;s say-so alone.
     </p>
     <p>
-      It fetches politely: one identifiable request at a time, one second apart
-      per host, <code>robots.txt</code> honoured. These are forty-five-seat rooms,
-      and the cost of indexing them should land on Glyph rather than on them.
+      That is not how it was first meant to work. The plan was to read venue
+      calendars directly, the way a ticketing feed is read, and the machinery for
+      it is still here. But when it went looking, not one of the rooms on this list
+      published a calendar a program could read — and several turn away automated
+      requests altogether, which is their call to make. So the rooms tell Glyph
+      what is on, and Glyph believes them over any robot.
     </p>
-    <p>Three rules govern the agent, in this order:</p>
+    <p>
+      Where a venue does publish a machine-readable calendar, it is read politely:
+      one identifiable request at a time, a second apart, <code>robots.txt</code>
+      honoured. These are forty-five-seat rooms, and the cost of indexing them
+      should land on Glyph rather than on them.
+    </p>
+    <p>Three rules govern the board, in this order:</p>
     <ol class="terms">
       <li>
         <strong>Never blank the board.</strong> A run that produces nothing writes
@@ -89,10 +97,11 @@
 
   <div class="prose">
     <p>
-      A zero in the middle column is not a venue that refused; it is a venue whose
-      calendar is not machine-readable yet, and a job still to do. Where a region
-      shows no venues at all, Glyph is claiming ground it has not covered — the
-      table is the apology.
+      Expect the middle column to read zero: it counts calendars Glyph can read by
+      itself, and for now there are none — listings arrive by email instead. The
+      last column is the one that shows coverage. Where a region shows no venues
+      at all, Glyph is claiming ground it has not covered, and the table is the
+      apology.
     </p>
 
     <h2>Affiliation, and getting it wrong</h2>

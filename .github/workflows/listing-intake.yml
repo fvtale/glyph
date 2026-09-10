@@ -1,0 +1,70 @@
+name: Listing intake
+
+# The email receptionist in datarail-agents turns a venue's email into a branch
+# named listings/<ref>, one file per listing under feed/curated/. This workflow
+# judges that branch against the contract and opens the pull request.
+#
+# A clean proposal opens as an ordinary PR — one click to merge. A proposal with
+# problems opens as a draft with the problems at the top, so it cannot be merged
+# by accident and still cannot vanish unseen.
+#
+# Opening a PR with GITHUB_TOKEN needs Settings > Actions > General > Workflow
+# permissions > "Allow GitHub Actions to create and approve pull requests".
+# Without it this fails at the last step, loudly, and the branch is still there
+# to open by hand.
+
+on:
+  push:
+    branches: ['listings/**']
+
+permissions:
+  contents: read
+  pull-requests: write
+
+# A re-push of the same proposal supersedes the one in flight.
+concurrency:
+  group: listing-intake-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  propose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # The proposal is judged against main, so main has to be here too.
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: feed/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r feed/requirements.txt
+
+      - name: Judge the proposal
+        id: judge
+        run: python feed/intake.py --base origin/main --body "$RUNNER_TEMP/body.md"
+
+      - name: Open the pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Both of these carry text that started life in someone's email. They
+          # reach the script as environment variables and are only ever used
+          # quoted — never pasted into the script with ${{ }}, where a crafted
+          # subject line would become shell.
+          BRANCH: ${{ github.ref_name }}
+          TITLE: ${{ steps.judge.outputs.title }}
+          CLEAN: ${{ steps.judge.outputs.clean }}
+        run: |
+          if gh pr view "$BRANCH" --json number >/dev/null 2>&1; then
+            gh pr edit "$BRANCH" --title "$TITLE" --body-file "$RUNNER_TEMP/body.md"
+            echo "A pull request was already open for $BRANCH; refreshed it."
+            exit 0
+          fi
+          draft=""
+          if [ "$CLEAN" != "true" ]; then draft="--draft"; fi
+          gh pr create --base main --head "$BRANCH" --title "$TITLE" \
+            --body-file "$RUNNER_TEMP/body.md" $draft

@@ -1,24 +1,35 @@
 name: Update the calendar
 
-# Sweeps every verified venue feed twice a day, writes public/data/events.json,
-# and only commits when the listings actually changed.
+# Builds public/data/events.json from the adapters and every approved listing,
+# commits it only when the listings actually changed, and publishes to
+# datarail-site when they did.
 #
-# Times are UTC: 11:00 and 23:00 are 07:00 and 19:00 Eastern during EDT, an hour
-# later during EST. Deliberately offset from the datarail.org events feed so the
-# two are not competing for the same runners. GitHub's scheduler is best-effort
-# and can lag by a few minutes, which does not matter at this cadence.
+# Runs whenever an approved listing lands on main — merging a listing pull
+# request is what puts it on the board — and on demand. The twice-daily sweep is
+# commented out below until there is a feed to sweep.
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'feed/curated/**'
+      - 'feed/curated.json'
+      - 'feed/feeds.json'
+      - 'public/data/venues.json'
+
   # The schedule is off until at least one source actually produces listings.
   # build.py exits non-zero on an empty board on purpose (rule 1: never blank
   # the board), so a cron firing against zero verified feeds fails every twelve
   # hours — which trains you to ignore the one alarm that is supposed to mean
-  # something. Uncomment both lines the moment the first adapter or curated
-  # listing lands.
+  # something. Uncomment both lines once the board has listings on it.
+  #
+  # Times are UTC: 11:00 and 23:00 are 07:00 and 19:00 Eastern during EDT, an
+  # hour later during EST, offset from the datarail.org events feed.
   #
   # schedule:
   #   - cron: '0 11 * * *'
   #   - cron: '0 23 * * *'
+
   workflow_dispatch:
     inputs:
       mode:
@@ -27,7 +38,7 @@ on:
         default: dry-run
         options:
           - dry-run     # fetch and report, write nothing
-          - probe       # hunt for venue .ics endpoints, write nothing
+          - probe       # hunt for venue feed endpoints, write nothing
           - build       # the real thing
           - bootstrap   # first run only: allowed to write an empty board
 
@@ -44,6 +55,10 @@ jobs:
     outputs:
       changed: ${{ steps.build.outputs.changed }}
       count: ${{ steps.build.outputs.count }}
+      # The commit this run made. Publishing checks out exactly this: without
+      # it, publish would check out the commit that triggered the run, which
+      # predates the board just built, and ship the previous one.
+      sha: ${{ steps.commit.outputs.sha }}
     steps:
       - uses: actions/checkout@v5
 
@@ -65,11 +80,11 @@ jobs:
         if: github.event.inputs.mode != 'probe'
         env:
           PYTHONUNBUFFERED: '1'
+          MODE: ${{ github.event.inputs.mode }}
         run: |
-          # A schedule fires with no inputs at all, so an empty mode has to mean
-          # the real build — otherwise the cron would dry-run twice a day forever
-          # and the board would never move.
-          MODE="${{ github.event.inputs.mode }}"
+          # A push or a schedule arrives with no inputs at all, so an empty mode
+          # has to mean the real build — otherwise merging a listing would only
+          # ever dry-run it.
           [ -n "$MODE" ] || MODE=build
           case "$MODE" in
             build)     python feed/build.py ;;
@@ -78,13 +93,13 @@ jobs:
           esac
 
       - name: Commit the board
+        id: commit
         if: steps.build.outputs.changed == 'true'
         run: |
           # Gate on the file rather than on the event: a manual build should
           # commit, a dry run leaves nothing to commit, and this cannot get the
-          # two confused.
-          # status, not diff: on the bootstrap run the file is brand new and
-          # untracked, which diff reports as no change at all.
+          # two confused. status, not diff: on the bootstrap run the file is
+          # brand new and untracked, which diff reports as no change at all.
           if [ -z "$(git status --porcelain -- public/data/events.json)" ]; then
             echo "nothing written to commit"
             exit 0
@@ -93,7 +108,11 @@ jobs:
           git config user.email "contact@datarail.org"
           git add public/data/events.json
           git commit -m "Update the calendar (${{ steps.build.outputs.count }} listings)"
-          git push
+          # Two listings merged close together start two runs. Rebase rather
+          # than force: losing a listing to a race is not acceptable.
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
   # Copies public/ into datarail-site/public/glyph, whose own deploy workflow
   # ships it to IONOS on push. Off until the repository variable PUBLISH_TO_SITE
@@ -102,17 +121,18 @@ jobs:
   #
   # Despite the name, that secret holds the private half of an SSH deploy key
   # rather than a PAT. A deploy key is scoped to one repository by construction
-  # and does not expire, which matters for a job that runs twice a day forever:
-  # an expiring PAT would take the live site stale months from now while the
+  # and does not expire, which matters for a job that runs indefinitely: an
+  # expiring PAT would take the live site stale months from now while the
   # calendar kept building green, and nothing would point at the cause.
   publish:
     needs: build
-    if: needs.build.outputs.changed == 'true' && vars.PUBLISH_TO_SITE == 'true'
+    if: needs.build.outputs.sha != '' && vars.PUBLISH_TO_SITE == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Check out Glyph
+      - name: Check out Glyph at the commit just built
         uses: actions/checkout@v5
         with:
+          ref: ${{ needs.build.outputs.sha }}
           path: glyph
 
       - name: Check out the site
@@ -123,18 +143,22 @@ jobs:
           path: site
 
       - name: Copy the built site into place
-        run: |
-          rsync -a --delete glyph/public/ site/public/glyph/
+        run: rsync -a --delete glyph/public/ site/public/glyph/
 
       - name: Commit to the site
         working-directory: site
         run: |
-          git config user.name  "glyph-calendar"
-          git config user.email "contact@datarail.org"
-          if git diff --quiet; then
+          # status, not diff: the first publish creates public/glyph/ from
+          # nothing, and diff cannot see untracked files — it would report the
+          # site as already matching and ship nothing, forever.
+          if [ -z "$(git status --porcelain -- public/glyph)" ]; then
             echo "site already matches, nothing to push"
             exit 0
           fi
+          git config user.name  "glyph-calendar"
+          git config user.email "contact@datarail.org"
           git add public/glyph
           git commit -m "Update Glyph (${{ needs.build.outputs.count }} listings)"
-          git push
+          # The receptionist pushes leads to this repo too.
+          git pull --rebase origin main
+          git push origin HEAD:main

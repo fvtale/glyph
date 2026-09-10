@@ -16,7 +16,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "feed"))
 
-from build import KINDS, PROBE_TYPES, REGIONS   # noqa: E402
+from build import CURATED_DIR, KINDS, PROBE_TYPES, REGIONS, why_invalid   # noqa: E402
 
 VENUES = ROOT / "public" / "data" / "venues.json"
 FEEDS = ROOT / "feed" / "feeds.json"
@@ -76,6 +76,28 @@ def main() -> int:
         if item.get("kind") not in KINDS:
             problems.append(f"curated.json: {item.get('id')} has kind {item.get('kind')!r}")
 
+    # Approved listings, one per file. Checked for shape only: a merged reading
+    # that has since happened is not broken, it is over, and the board drops it
+    # by itself. Anything malformed, though, should never have been merged.
+    venue_map = {venue["id"]: venue for venue in venues}
+    approved = 0
+    if CURATED_DIR.is_dir():
+        for path in sorted(CURATED_DIR.glob("*.json")):
+            approved += 1
+            try:
+                item = json.loads(path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError as exc:
+                problems.append(f"feed/curated/{path.name}: not valid JSON ({exc})")
+                continue
+            if not isinstance(item, dict):
+                problems.append(f"feed/curated/{path.name}: not a JSON object")
+                continue
+            reason = why_invalid(dict(item, source="curated"), venue_map, temporal=False)
+            if reason:
+                problems.append(f"feed/curated/{path.name}: {reason}")
+            if item.get("id") != path.stem:
+                problems.append(f"feed/curated/{path.name}: file name does not match its id")
+
     # Nothing is publishable here without a recorded grant from the writer. A
     # missing grantedOn is a piece we cannot prove we were allowed to print.
     writers = json.loads(WRITERS.read_text(encoding="utf-8"))
@@ -99,7 +121,7 @@ def main() -> int:
 
     wired = sum(1 for entry in feeds.get("feeds", {}).values() if entry.get("verified"))
     print(f"ok: {len(venues)} venues, {wired} verified feeds, "
-          f"{len(curated.get('events', []))} curated listings, "
+          f"{len(curated.get('events', [])) + approved} curated listings, "
           f"{len(writers.get('writers', []))} writers")
     return 0
 

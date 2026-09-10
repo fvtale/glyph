@@ -19,8 +19,10 @@ the thing is still happening.
 ## Layout
 
     feed/                     the listings builder — runs in CI, never in a browser
-      build.py                merges adapters + curated.json, validates, writes events.json
+      build.py                merges adapters + every approved listing, validates, writes events.json
+      intake.py               judges a listings/* branch and writes its pull request
       curated.json            hand-entered listings; always win a dedupe tie
+      curated/                approved listings, one file each — where sent-in listings land
       feeds.json              per-venue feed URLs and whether each is verified
       sources/                one thin adapter per provider
     public/                   the site, deployed as-is
@@ -43,23 +45,25 @@ rules that keep an automated board trustworthy:
 1. **Never blank the board.** A run producing zero listings writes nothing and
    fails loudly. A source that errors keeps its previous listings rather than
    dropping them.
-2. **Never clobber human input.** `feed/curated.json` is merged on every run and
-   always wins a dedupe tie against a scraped listing.
+2. **Never clobber human input.** Approved listings (`feed/curated.json` and
+   `feed/curated/`) are merged on every run and
+   always win a dedupe tie against a scraped listing.
 3. **Never commit noise.** Output is compared ignoring `generatedAt`, so an
    unchanged board produces no commit and therefore no deploy.
 
 ## Running the builder
 
 There is no Python on the development machine, so **CI is the only place this
-runs.** Both paths are on `.github/workflows/calendar.yml`:
+runs.** Every path is on `.github/workflows/calendar.yml`:
 
 - `workflow_dispatch` with `mode: probe` — fetches every candidate feed in
   `feed/feeds.json` and reports which ones actually exist and parse. This is how
   a venue's feed URL gets verified before it is trusted.
 - `workflow_dispatch` with `mode: dry-run` — full build, prints the board, writes
   nothing.
-- The twice-daily cron — builds, commits `public/data/events.json` only when the
-  listings changed.
+- A push to `main` that touches an approved listing — merging a listing PR —
+  builds, and commits `public/data/events.json` only when the
+  listings changed. The twice-daily cron waits, commented out, for a feed to sweep.
 
 If you ever do have a local Python:
 
@@ -76,13 +80,43 @@ the IONOS SFTP secrets that already work, so nothing new has to be provisioned.
 Every internal link is relative, so the site also works opened from disk and
 would survive being moved to its own domain later without a find-and-replace.
 
-## Submissions
+## Listings sent in
 
-Writers submit by email to the address in `public/submit.html`, which is
-deliberately a plain `mailto:` and not a third-party form — no embedded JS from
-anyone else, and the inbox can be adopted by the `datarail-agents` email
-receptionist later without changing the page.
+No venue on the list publishes a calendar a program can read — two probe
+rounds proved it, and the evidence is in `docs/sources.md`. So the calendar is
+built mostly from what venues and organisers email, through a pipeline split
+across two repositories on purpose:
 
-Submissions are open and curated: anything published needs an explicit,
-revocable, non-exclusive display grant from the writer, recorded in
-`public/data/writers.json` alongside the piece.
+    venue emails contact@datarail.org, subject "Glyph listing"
+      -> datarail-agents' receptionist classifies it as a listing
+         and drafts the events it describes (OpenAI, via core/brain.py)
+      -> pushes a branch listings/<ref> here, one file per listing
+         under feed/curated/, using a deploy key
+      -> .github/workflows/listing-intake.yml runs feed/intake.py, which
+         judges each file with the same why_invalid() the board uses
+      -> opens a pull request: an ordinary one if every listing is clean,
+         a draft with the problems at the top if not
+      -> you merge it, which runs the calendar build, which publishes
+
+The agent drafts; this repository judges. There is one definition of a
+publishable listing and it lives here, so a model that misreads an email can
+propose a bad listing but can never approve one.
+
+**This repository is public**, and so are its pull requests from the moment
+they open. The PR is built from the listing files alone — never the sender's
+address, name, subject line or message — and `public/submit.html` tells
+submitters exactly that.
+
+Two settings make it work:
+
+- **Settings > Actions > General > Workflow permissions > Allow GitHub Actions
+  to create and approve pull requests**, so the intake can open the PR with
+  its own token.
+- A deploy key with write access on this repository, whose private half is the
+  `GLYPH_DEPLOY_KEY` secret on `fvtale/datarail-agents`.
+## Submissions from writers
+
+Writers submit work by email to the address in `public/submit.html`, which is
+deliberately a plain `mailto:` and not a third-party form. Anything published
+needs an explicit, revocable, non-exclusive display grant from the writer,
+recorded in `public/data/writers.json` alongside the piece.

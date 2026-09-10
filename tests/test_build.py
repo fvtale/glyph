@@ -92,6 +92,34 @@ def test_relative_url_is_dropped():
     assert "absolute" in build.why_invalid(listing(url="/events/1"), VENUES)
 
 
+def test_shape_only_check_accepts_a_listing_that_is_simply_over():
+    # A merged reading from last week is not a broken file; CI must not go red
+    # every morning as approved listings age out.
+    yesterday = (date.today() - timedelta(days=1)).isoformat()
+    assert build.why_invalid(listing(date=yesterday), VENUES, temporal=False) is None
+
+
+def test_shape_only_check_still_rejects_an_impossible_date():
+    assert build.why_invalid(listing(date="2026-13-45"), VENUES, temporal=False)
+
+
+def test_curated_reads_the_file_and_one_listing_per_file(tmp_path, monkeypatch):
+    curated_file = tmp_path / "curated.json"
+    curated_file.write_text('{"events": [{"id": "from-the-file"}]}', encoding="utf-8")
+    folder = tmp_path / "curated"
+    folder.mkdir()
+    (folder / "from-a-file.json").write_text('{"id": "from-a-file"}', encoding="utf-8")
+    (folder / "broken.json").write_text("{not json", encoding="utf-8")
+    (folder / "README.md").write_text("not a listing", encoding="utf-8")
+    monkeypatch.setattr(build, "CURATED", curated_file)
+    monkeypatch.setattr(build, "CURATED_DIR", folder)
+
+    listings = build.read_curated()
+    # One malformed file is skipped rather than taking the board down.
+    assert sorted(item["id"] for item in listings) == ["from-a-file", "from-the-file"]
+    assert all(item["source"] == "curated" for item in listings)
+
+
 def test_registration_belongs_only_to_workshops():
     item = listing(registration={"deadline": "2099-01-01"})
     assert build.why_invalid(item, VENUES) == "registration block on a non-workshop"
