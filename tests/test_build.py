@@ -238,6 +238,75 @@ def test_titles_normalize_across_punctuation_and_accents():
     assert normalize_title("Café Reading!") == normalize_title("cafe   reading")
 
 
+# ---------------------------------------------------------------------------
+# probe response judgement — the call that decides whether a venue gets wired
+# ---------------------------------------------------------------------------
+
+ICAL = (
+    "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//test//EN\r\n"
+    "BEGIN:VEVENT\r\nUID:1\r\nDTSTART:20990101T190000Z\r\nSUMMARY:A reading\r\n"
+    "END:VEVENT\r\nEND:VCALENDAR\r\n"
+)
+
+
+def test_real_ical_is_accepted():
+    ok, description = build.describe_probe_response("ical", ICAL)
+    assert ok and "1 VEVENTs" in description
+
+
+def test_an_html_page_is_not_a_calendar():
+    ok, description = build.describe_probe_response("ical", "<html>events</html>")
+    assert not ok and description == "200 but not iCal"
+
+
+def test_an_empty_calendar_is_not_worth_wiring():
+    empty = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//t//EN\r\nEND:VCALENDAR\r\n"
+    ok, _ = build.describe_probe_response("ical", empty)
+    assert not ok
+
+
+def test_squarespace_events_collection_is_accepted():
+    body = '{"items": [{"title": "A reading", "startDate": 4102444800000}]}'
+    ok, description = build.describe_probe_response("squarespace", body)
+    assert ok and "1 dated items" in description
+
+
+def test_a_squarespace_blog_collection_is_rejected():
+    # Same endpoint shape, no dates: that is a blog, not an events collection,
+    # and wiring it would fill the board with essays.
+    body = '{"items": [{"title": "A post"}, {"title": "Another"}]}'
+    ok, _ = build.describe_probe_response("squarespace", body)
+    assert not ok
+
+
+def test_tribe_rest_is_accepted():
+    ok, description = build.describe_probe_response("tribe", '{"events": [{"id": 1}]}')
+    assert ok and "1 events" in description
+
+
+def test_wp_rest_post_list_is_accepted():
+    ok, description = build.describe_probe_response("wp-rest", '[{"id": 1}, {"id": 2}]')
+    assert ok and "2 posts" in description
+
+
+def test_html_served_at_a_json_endpoint_is_rejected():
+    ok, description = build.describe_probe_response("squarespace", "<!DOCTYPE html>")
+    assert not ok and description == "200 but not JSON"
+
+
+def test_an_unknown_convention_type_is_never_accepted():
+    ok, description = build.describe_probe_response("carrier-pigeon", "{}")
+    assert not ok and "unknown convention type" in description
+
+
+@pytest.mark.parametrize("kind", sorted(build.PROBE_TYPES))
+def test_every_probe_type_is_judgeable(kind):
+    # Garbage in, a verdict out — never an exception, or one bad response would
+    # end a probe run partway through the venue list.
+    ok, description = build.describe_probe_response(kind, "not remotely valid")
+    assert not ok and description
+
+
 def test_ids_are_stable_and_slugged():
     assert make_id("kgb-bar", "2026-09-20", "Prose night, three readers") == \
         "kgb-bar-2026-09-20-prose-night-three-readers"

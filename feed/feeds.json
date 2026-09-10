@@ -1,12 +1,16 @@
 {
   "note": "Which venues have a machine-readable calendar. A venue is only swept once its feed is verified: run the calendar workflow in probe mode, read the report, paste the working URL in here with verified true. Nothing is guessed into production — an unverified URL that 404s would quietly cost that venue its listings.",
   "conventions": [
-    { "id": "squarespace",   "pattern": "{site}/events?format=ical",  "note": "Squarespace event collections; the path is often /events, sometimes /calendar." },
-    { "id": "squarespace-alt", "pattern": "{site}/calendar?format=ical", "note": "Same, other common collection slug." },
-    { "id": "tec-ical",      "pattern": "{site}/events/?ical=1",      "note": "WordPress + The Events Calendar." },
-    { "id": "wp-feed",       "pattern": "{site}/events/feed/",        "note": "WordPress events RSS; needs an RSS adapter, not yet written." },
-    { "id": "root-ics",      "pattern": "{site}/events.ics",          "note": "Hand-rolled sites sometimes just drop a file." },
-    { "id": "calendar-ics",  "pattern": "{site}/calendar.ics",        "note": "As above." }
+    { "id": "squarespace-ical", "type": "ical",        "pattern": "{site}/events?format=ical",             "note": "Squarespace event collections; the path is often /events, sometimes /calendar." },
+    { "id": "squarespace-json", "type": "squarespace", "pattern": "{site}/events?format=json",             "note": "The same collection as JSON. Squarespace serves this even where it refuses ?format=ical, and an events collection dates its items." },
+    { "id": "calendar-ical",    "type": "ical",        "pattern": "{site}/calendar?format=ical",           "note": "Squarespace, other common collection slug." },
+    { "id": "calendar-json",    "type": "squarespace", "pattern": "{site}/calendar?format=json",           "note": "As above, as JSON." },
+    { "id": "tec-ical",         "type": "ical",        "pattern": "{site}/events/?ical=1",                 "note": "WordPress + The Events Calendar." },
+    { "id": "tribe-rest",       "type": "tribe",       "pattern": "{site}/wp-json/tribe/events/v1/events", "note": "The Events Calendar's REST API. Present on most installs even when the .ics export is switched off, and a documented contract rather than a theme detail." },
+    { "id": "wp-events-cpt",    "type": "wp-rest",     "pattern": "{site}/wp-json/wp/v2/tribe_events",     "note": "The events custom post type over the core WordPress REST API — the fallback when the Tribe route is disabled." },
+    { "id": "wp-feed",          "type": "ical",        "pattern": "{site}/events/feed/",                   "note": "WordPress events RSS. Listed as ical so a real .ics served here is still caught; an RSS adapter does not exist yet." },
+    { "id": "root-ics",         "type": "ical",        "pattern": "{site}/events.ics",                     "note": "Hand-rolled sites sometimes just drop a file." },
+    { "id": "calendar-ics",     "type": "ical",        "pattern": "{site}/calendar.ics",                   "note": "As above." }
   ],
   "feeds": {}
 }

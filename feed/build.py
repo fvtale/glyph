@@ -29,7 +29,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from sources import build_sources, load_config, load_venues   # noqa: E402
+from sources import ADAPTERS, build_sources, load_config, load_venues  # noqa: E402
 from sources.base import SourceError, normalize_title          # noqa: E402
 from sources.http import polite_get                            # noqa: E402
 
@@ -227,6 +227,66 @@ def build_coverage(venues: dict[str, dict], config: dict, status: dict[str, dict
 # probe
 # ---------------------------------------------------------------------------
 
+#: Response shapes the prober can recognise. A convention naming anything else
+#: would probe a real URL and then be unable to say whether the answer was any
+#: good, so check_registry rejects it.
+PROBE_TYPES = {"ical", "squarespace", "tribe", "wp-rest"}
+
+
+def describe_probe_response(kind: str, text: str) -> tuple[bool, str]:
+    """Did a probed URL return the shape its convention promised?
+
+    Split out from probe() so it can be tested without a network: this is the
+    judgement that decides whether a venue gets wired up, and getting it wrong
+    in either direction is expensive. A false yes puts a broken feed into
+    production; a false no loses a venue nobody revisits.
+    """
+    if kind == "ical":
+        if "BEGIN:VCALENDAR" not in text:
+            return False, "200 but not iCal"
+        try:
+            from icalendar import Calendar
+            count = len(list(Calendar.from_ical(text).walk("VEVENT")))
+        except Exception as exc:
+            return False, f"iCal that will not parse ({exc})"
+        return count > 0, f"iCal, {count} VEVENTs"
+
+    try:
+        data = json.loads(text)
+    except ValueError:
+        return False, "200 but not JSON"
+
+    if kind == "squarespace":
+        items = data.get("items") if isinstance(data, dict) else None
+        if not isinstance(items, list):
+            return False, "JSON with no items array"
+        # A Squarespace events collection dates its items; a blog collection
+        # does not. That is the whole difference between the two.
+        dated = [item for item in items
+                 if isinstance(item, dict) and item.get("startDate")]
+        return len(dated) > 0, f"Squarespace JSON, {len(dated)} dated items"
+
+    if kind == "tribe":
+        events = data.get("events") if isinstance(data, dict) else None
+        if not isinstance(events, list):
+            return False, "JSON with no events array"
+        return len(events) > 0, f"Tribe REST, {len(events)} events"
+
+    if kind == "wp-rest":
+        if not isinstance(data, list):
+            return False, "JSON that is not a post list"
+        return len(data) > 0, f"WP REST, {len(data)} posts"
+
+    return False, f"unknown convention type {kind!r}"
+
+
+# A 404 means "not that path", which is ordinary and worth continuing past. These
+# mean "not you", and asking the same host eight more times is rude and will not
+# change the answer.
+REFUSALS = ("http 403", "http 401", "http 429", "timed out", "connection",
+            "robots.txt disallows")
+
+
 def probe(venues: dict[str, dict], config: dict) -> int:
     """Try the convention patterns against every venue and report what answers.
 
@@ -234,14 +294,13 @@ def probe(venues: dict[str, dict], config: dict) -> int:
     to be trusted about a venue's URL scheme. Feed URLs get verified here, from
     evidence, instead of by pasting a plausible-looking URL into feeds.json.
     """
-    from icalendar import Calendar
-
     conventions = config.get("conventions", [])
     already = {
         venue_id for venue_id, entry in config.get("feeds", {}).items()
         if entry.get("verified")
     }
-    found: dict[str, dict] = {}
+    found: dict[str, dict] = {}        # answered, and we have an adapter
+    pending: dict[str, dict] = {}      # answered, but nothing can read it yet
 
     for venue_id, venue in venues.items():
         if venue_id in already:
@@ -252,36 +311,47 @@ def probe(venues: dict[str, dict], config: dict) -> int:
             print(f"{venue_id}: no site in the registry")
             continue
         print(f"{venue_id} ({site})")
+
+        refusals = 0
         for convention in conventions:
             url = convention["pattern"].format(site=site)
             label = convention["id"]
+            kind = convention.get("type", "ical")
             try:
                 text = polite_get(url)
             except SourceError as exc:
-                print(f"    {label:<16} - {exc}")
+                print(f"    {label:<18} - {exc}")
+                if any(mark in str(exc).lower() for mark in REFUSALS):
+                    refusals += 1
+                    if refusals >= 2:
+                        print(f"    (stopping here — {venue_id} is declining "
+                              f"automated requests, and that is an answer)")
+                        break
                 continue
-            if "BEGIN:VCALENDAR" not in text:
-                print(f"    {label:<16} - 200 but not iCal")
+
+            ok, description = describe_probe_response(kind, text)
+            print(f"    {label:<18} - {description}"
+                  f"{'  ' + url if ok else ''}")
+            if not ok or venue_id in found or venue_id in pending:
                 continue
-            try:
-                count = len(list(Calendar.from_ical(text).walk("VEVENT")))
-            except Exception as exc:
-                print(f"    {label:<16} - iCal that will not parse ({exc})")
-                continue
-            print(f"    {label:<16} - OK, {count} VEVENTs  {url}")
-            if venue_id not in found:
-                found[venue_id] = {
-                    "type": "ical", "url": url, "verified": True,
-                    "kindFallback": "reading",
-                }
+            entry = {"type": kind, "url": url, "kindFallback": "reading"}
+            if kind in ADAPTERS:
+                found[venue_id] = dict(entry, verified=True)
+            else:
+                pending[venue_id] = dict(entry, verified=False)
 
     print("\n" + "=" * 68)
-    if not found:
-        print("No feeds found. These venues need HTML adapters or curated entries.")
-        return 0
-    print("Verified feeds - paste into the feeds object in feed/feeds.json, after")
-    print("checking that each URL really is that venue's public calendar:\n")
-    print(json.dumps(found, indent=2))
+    if found:
+        print("Ready to wire — paste into the feeds object in feed/feeds.json,")
+        print("after checking each URL really is that venue's public calendar:\n")
+        print(json.dumps(found, indent=2))
+    if pending:
+        print(f"\nAnswered, but no adapter exists for these types yet "
+              f"({', '.join(sorted({e['type'] for e in pending.values()}))}).")
+        print("Write the adapter first; verified stays false until then:\n")
+        print(json.dumps(pending, indent=2))
+    if not found and not pending:
+        print("Nothing answered. These venues need HTML adapters, or curated entries.")
     return 0
 
 

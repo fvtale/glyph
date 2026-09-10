@@ -16,7 +16,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "feed"))
 
-from build import KINDS, REGIONS   # noqa: E402
+from build import KINDS, PROBE_TYPES, REGIONS   # noqa: E402
 
 VENUES = ROOT / "public" / "data" / "venues.json"
 FEEDS = ROOT / "feed" / "feeds.json"
@@ -55,9 +55,19 @@ def main() -> int:
         fallback = entry.get("kindFallback", "reading")
         if fallback not in KINDS:
             problems.append(f"feeds.json: {venue_id} has kindFallback {fallback!r}")
+    seen_conventions: set[str] = set()
     for convention in feeds.get("conventions", []):
+        label = convention.get("id")
         if "{site}" not in convention.get("pattern", ""):
-            problems.append(f"feeds.json: convention {convention.get('id')} has no {{site}}")
+            problems.append(f"feeds.json: convention {label} has no {{site}}")
+        if convention.get("type", "ical") not in PROBE_TYPES:
+            problems.append(
+                f"feeds.json: convention {label} has type "
+                f"{convention.get('type')!r}, which the prober cannot judge"
+            )
+        if label in seen_conventions:
+            problems.append(f"feeds.json: duplicate convention id {label}")
+        seen_conventions.add(label)
 
     curated = json.loads(CURATED.read_text(encoding="utf-8"))
     for item in curated.get("events", []):
