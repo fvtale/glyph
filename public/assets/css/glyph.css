@@ -1,5 +1,5 @@
 /* =============================================================================
-   Meter — one stylesheet, two skins.
+   Glyph — one stylesheet, two skins.
 
    A page declares which it wants on <html data-skin="paper"> or "board".
 
@@ -143,13 +143,25 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: calc(var(--step) * 2.
   color: var(--fg); text-decoration: none;
 }
 .wordmark:hover { text-decoration: none; }
-/* Scansion marks. The one place the metaphor is allowed to be literal. */
-.wordmark .scan {
+/* Reference marks — pilcrow, dagger, double dagger, section. The marks a text
+   carries to point at itself, which is the name doing its own explaining. */
+.wordmark .marks {
   font: 0.75rem/1 var(--font-mono);
   color: var(--accent-ink);
   letter-spacing: 0.18em;
   opacity: 0.8;
 }
+
+/* The slogan, in the header lockup on every page but the landing one, where the
+   hero says it at full size instead. Folds away before it can crowd the nav. */
+.tagline {
+  font: italic 0.8125rem/1 var(--font-serif);
+  color: var(--muted);
+  border-left: 1px solid var(--rule);
+  padding-left: 0.75rem;
+  white-space: nowrap;
+}
+@media (max-width: 900px) { .tagline { display: none; } }
 
 nav.links { margin-left: auto; display: flex; flex-wrap: wrap; gap: clamp(0.6rem, 2vw, 1.4rem); }
 nav.links a {

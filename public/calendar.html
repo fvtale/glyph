@@ -3,16 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Meter — The board</title>
+<title>Glyph — The board</title>
 <meta name="description" content="Readings, open mics, workshops, launches and panels across the New York metro area. Swept from venue calendars twice a day.">
 <meta name="color-scheme" content="dark">
-<link rel="stylesheet" href="assets/css/meter.css">
+<link rel="stylesheet" href="assets/css/glyph.css">
 </head>
 <body>
 
 <header class="top">
   <div class="shell top-inner">
-    <a class="wordmark" href="index.html">Meter<span class="scan">˘ ˉ ˘ ˉ</span></a>
+    <a class="wordmark" href="index.html">Glyph<span class="marks">&#182; &#8224; &#8225; &#167;</span></a>
+      <span class="tagline">The most beautiful kind of data</span>
     <nav class="links" aria-label="Main">
       <a href="calendar.html" aria-current="page">Calendar</a>
       <a href="poets/index.html">Poets &amp; authors</a>
@@ -63,7 +64,7 @@
   <div class="shell">
     <p>
       Every listing links to the venue&rsquo;s own page, which is the authority on
-      time, price and whether it is still happening. Meter is not affiliated with
+      time, price and whether it is still happening. Glyph is not affiliated with
       any venue it lists. Feeds are swept twice a day; a venue whose feed breaks
       keeps its previous listings rather than vanishing, so a stale row is
       possible — the link is not.
@@ -75,7 +76,7 @@
   </div>
 </footer>
 
-<script src="assets/js/meter.js"></script>
+<script src="assets/js/glyph.js"></script>
 <script>
   // Region chips are built from the venue registry rather than hardcoded, so a
   // dead filter can never appear for a region with nothing in it.
@@ -87,7 +88,7 @@
         counts[venue.region] = (counts[venue.region] || 0) + 1;
       });
       var wrap = document.getElementById("region-chips");
-      Object.keys(Meter.regions).forEach(function (region) {
+      Object.keys(Glyph.regions).forEach(function (region) {
         if (!counts[region]) return;
         var button = document.createElement("button");
         button.className = "chip";
@@ -95,13 +96,13 @@
         button.setAttribute("data-filter", "region");
         button.setAttribute("data-value", region);
         button.setAttribute("aria-pressed", "false");
-        button.textContent = Meter.regions[region];
+        button.textContent = Glyph.regions[region];
         wrap.appendChild(button);
       });
     })
     .catch(function () { /* no chips is a worse page, not a broken one */ })
     .then(function () {
-      Meter.board({
+      Glyph.board({
         target: "#board",
         count: "#count",
         banner: "#sample-banner",

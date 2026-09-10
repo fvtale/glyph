@@ -25,7 +25,7 @@ on:
           - bootstrap   # first run only: allowed to write an empty board
 
 concurrency:
-  group: meter-calendar
+  group: glyph-calendar
   cancel-in-progress: false
 
 permissions:
@@ -82,13 +82,13 @@ jobs:
             echo "nothing written to commit"
             exit 0
           fi
-          git config user.name  "meter-calendar"
+          git config user.name  "glyph-calendar"
           git config user.email "contact@datarail.org"
           git add public/data/events.json
           git commit -m "Update the calendar (${{ steps.build.outputs.count }} listings)"
           git push
 
-  # Copies public/ into datarail-site/public/meter, whose own deploy workflow
+  # Copies public/ into datarail-site/public/glyph, whose own deploy workflow
   # ships it to IONOS on push. Off until the repository variable PUBLISH_TO_SITE
   # is set to true and a DATARAIL_SITE_TOKEN secret with write access to that
   # repo exists — the same dry-run-until-a-variable-flips shape the email
@@ -98,10 +98,10 @@ jobs:
     if: needs.build.outputs.changed == 'true' && vars.PUBLISH_TO_SITE == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Check out Meter
+      - name: Check out Glyph
         uses: actions/checkout@v5
         with:
-          path: meter
+          path: glyph
 
       - name: Check out the site
         uses: actions/checkout@v5
@@ -112,17 +112,17 @@ jobs:
 
       - name: Copy the built site into place
         run: |
-          rsync -a --delete meter/public/ site/public/meter/
+          rsync -a --delete glyph/public/ site/public/glyph/
 
       - name: Commit to the site
         working-directory: site
         run: |
-          git config user.name  "meter-calendar"
+          git config user.name  "glyph-calendar"
           git config user.email "contact@datarail.org"
           if git diff --quiet; then
             echo "site already matches, nothing to push"
             exit 0
           fi
-          git add public/meter
-          git commit -m "Update Meter (${{ needs.build.outputs.count }} listings)"
+          git add public/glyph
+          git commit -m "Update Glyph (${{ needs.build.outputs.count }} listings)"
           git push

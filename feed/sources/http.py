@@ -1,6 +1,6 @@
 """Polite HTTP for every adapter.
 
-Meter reads other people's calendars. The cost of that has to land on Meter, not
+Glyph reads other people's calendars. The cost of that has to land on Glyph, not
 on a 45-seat reading room's web host, so all fetching goes through here:
 
 - one identifiable User-Agent naming the project and where to complain
@@ -20,7 +20,7 @@ import requests
 from .base import SourceError
 
 USER_AGENT = (
-    "MeterBot/0.1 (+https://datarail.org/meter/about.html) "
+    "GlyphBot/0.1 (+https://datarail.org/glyph/about.html) "
     "NYC literary events index; contact contact@datarail.org"
 )
 TIMEOUT = 20

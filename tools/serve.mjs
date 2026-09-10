@@ -48,4 +48,4 @@ createServer(async (request, response) => {
   } catch {
     response.writeHead(404, { "content-type": "text/plain" }).end(`404 ${path}`);
   }
-}).listen(PORT, () => console.log(`Meter on http://localhost:${PORT}/`));
+}).listen(PORT, () => console.log(`Glyph on http://localhost:${PORT}/`));

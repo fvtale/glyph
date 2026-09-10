@@ -1,5 +1,5 @@
 /* =============================================================================
-   Meter — the client side of the board.
+   Glyph — the client side of the board.
 
    No framework, no build step, one file. Everything here is presentation: the
    listings arrive already validated by feed/build.py, so this code never has to
@@ -311,7 +311,7 @@
     });
   }
 
-  window.Meter = {
+  window.Glyph = {
     board: board,
     upcoming: upcoming,
     coverage: coverage,

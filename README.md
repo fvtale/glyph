@@ -1,16 +1,18 @@
-# Meter
+# Glyph
+
+**The most beautiful kind of data.**
 
 A calendar and reading room for the New York metro literary scene: poetry
 readings, open mics, workshops, book launches, panels and prose nights, plus
 full pieces from local poets and authors published with their permission.
 
-The framing is that writing is data — one of the most beautiful kinds. That is
-a metaphor and it does aesthetic work only. There is no scansion engine and no
+The slogan is the whole framing: writing is data, and it is the most beautiful
+kind. That is a metaphor and it does aesthetic work only. There is no scansion engine and no
 corpus tooling here. What the metaphor earns is a discipline: the calendar is
 treated as a dataset that someone might plan a Thursday night around, so it is
 validated, sourced, and never quietly wrong.
 
-Meter is not affiliated with any venue it lists. Every listing links out to the
+Glyph is not affiliated with any venue it lists. Every listing links out to the
 venue's own event page, which is always the authority on time, price and whether
 the thing is still happening.
 
@@ -67,8 +69,8 @@ If you ever do have a local Python:
 
 ## Deploying
 
-Meter is its own repo and ships to `datarail.org/meter` by copying `public/`
-into `datarail-site/public/meter`, the same way Whackipedia does. That reuses
+Glyph is its own repo and ships to `datarail.org/glyph` by copying `public/`
+into `datarail-site/public/glyph`, the same way Whackipedia does. That reuses
 the IONOS SFTP secrets that already work, so nothing new has to be provisioned.
 
 Every internal link is relative, so the site also works opened from disk and

@@ -38,8 +38,8 @@ bearing for either rendering or trust:
 - **`id`** — stable across runs, so a listing keeps its `firstSeen` and does not
   flicker in and out of "new this week". Built as `<venueId>-<date>-<slug>`.
   A source that changes an event's id every fetch is a bug in the adapter.
-- **`url`** — the venue's own page for the event, never Meter's. It is the
-  authority; Meter is an index. A listing with nowhere to link is not publishable.
+- **`url`** — the venue's own page for the event, never Glyph's. It is the
+  authority; Glyph is an index. A listing with nowhere to link is not publishable.
 - **`source`** — the adapter that produced it, or `curated`. Determines which
   existing listings a successful run may replace, and shows up in the coverage
   block.
@@ -62,7 +62,7 @@ One of five. The taxonomy is closed because the filter chips are, and because
 
 ### `region`
 
-Meter claims the full metro area: `manhattan`, `brooklyn`, `queens`, `bronx`,
+Glyph claims the full metro area: `manhattan`, `brooklyn`, `queens`, `bronx`,
 `staten-island`, `near-nj` (Jersey City, Hoboken, Newark), `westchester`,
 `long-island`.
 

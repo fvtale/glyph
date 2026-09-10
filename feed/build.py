@@ -202,7 +202,7 @@ def build_coverage(venues: dict[str, dict], config: dict, status: dict[str, dict
                    listings: list[dict]) -> dict:
     """Per region: venues registered, venues with a verified feed, listings live.
 
-    Meter claims the whole metro area. Claiming a region is not the same as
+    Glyph claims the whole metro area. Claiming a region is not the same as
     covering one, so the gap gets published rather than left for a visitor to
     infer from an empty filter.
     """
