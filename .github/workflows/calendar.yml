@@ -9,9 +9,16 @@ name: Update the calendar
 # and can lag by a few minutes, which does not matter at this cadence.
 
 on:
-  schedule:
-    - cron: '0 11 * * *'
-    - cron: '0 23 * * *'
+  # The schedule is off until at least one source actually produces listings.
+  # build.py exits non-zero on an empty board on purpose (rule 1: never blank
+  # the board), so a cron firing against zero verified feeds fails every twelve
+  # hours — which trains you to ignore the one alarm that is supposed to mean
+  # something. Uncomment both lines the moment the first adapter or curated
+  # listing lands.
+  #
+  # schedule:
+  #   - cron: '0 11 * * *'
+  #   - cron: '0 23 * * *'
   workflow_dispatch:
     inputs:
       mode:
