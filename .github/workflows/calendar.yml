@@ -90,9 +90,14 @@ jobs:
 
   # Copies public/ into datarail-site/public/glyph, whose own deploy workflow
   # ships it to IONOS on push. Off until the repository variable PUBLISH_TO_SITE
-  # is set to true and a DATARAIL_SITE_TOKEN secret with write access to that
-  # repo exists — the same dry-run-until-a-variable-flips shape the email
-  # receptionist uses.
+  # is set to true and the DATARAIL_SITE_TOKEN secret exists — the same
+  # dry-run-until-a-variable-flips shape the email receptionist uses.
+  #
+  # Despite the name, that secret holds the private half of an SSH deploy key
+  # rather than a PAT. A deploy key is scoped to one repository by construction
+  # and does not expire, which matters for a job that runs twice a day forever:
+  # an expiring PAT would take the live site stale months from now while the
+  # calendar kept building green, and nothing would point at the cause.
   publish:
     needs: build
     if: needs.build.outputs.changed == 'true' && vars.PUBLISH_TO_SITE == 'true'
@@ -107,7 +112,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: fvtale/datarail-site
-          token: ${{ secrets.DATARAIL_SITE_TOKEN }}
+          ssh-key: ${{ secrets.DATARAIL_SITE_TOKEN }}
           path: site
 
       - name: Copy the built site into place
