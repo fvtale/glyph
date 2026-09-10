@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-skin="paper">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meter — About, and what it does not cover</title>
+<meta name="description" content="How Meter builds its calendar, which parts of the New York metro area it actually covers, and what it is not affiliated with.">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="assets/css/meter.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="shell top-inner">
+    <a class="wordmark" href="index.html">Meter<span class="scan">˘ ˉ ˘ ˉ</span></a>
+    <nav class="links" aria-label="Main">
+      <a href="calendar.html">Calendar</a>
+      <a href="poets/index.html">Poets &amp; authors</a>
+      <a href="submit.html">Submit</a>
+      <a href="about.html" aria-current="page">About</a>
+    </nav>
+  </div>
+</header>
+
+<main class="shell">
+
+  <h1>About Meter</h1>
+
+  <div class="prose">
+    <p class="lede">
+      Meter is an independent index of literary events in the New York metro area,
+      and a small press for the writers in it.
+    </p>
+
+    <p>
+      Two things happen here. The calendar collects readings, open mics,
+      workshops, book launches and panels from the rooms that host them, so that
+      knowing what is on does not require already being inside the scene. And a
+      handful of local poets and authors get their work published in full, on
+      paper-coloured pages, with every right still theirs.
+    </p>
+
+    <h2>How the calendar is built</h2>
+    <p>
+      A listings agent runs twice a day. For each venue with a verified
+      machine-readable calendar, it reads that calendar, normalises what it finds
+      into a single schema, throws out anything it cannot vouch for, and publishes
+      the result as one file the page reads. Hand-entered listings are merged on
+      every run and always beat a scraped one, because a person who checked
+      outranks a robot that parsed.
+    </p>
+    <p>
+      It fetches politely: one identifiable request at a time, one second apart
+      per host, <code>robots.txt</code> honoured. These are forty-five-seat rooms,
+      and the cost of indexing them should land on Meter rather than on them.
+    </p>
+    <p>Three rules govern the agent, in this order:</p>
+    <ol class="terms">
+      <li>
+        <strong>Never blank the board.</strong> A run that produces nothing writes
+        nothing and raises an alarm. A venue whose feed breaks keeps its previous
+        listings instead of vanishing. The trade is that a stale row is possible —
+        which is why every row links out, and the venue&rsquo;s page always wins.
+      </li>
+      <li>
+        <strong>Never clobber human input.</strong> Corrections made by hand
+        survive every subsequent run.
+      </li>
+      <li>
+        <strong>Never commit noise.</strong> An unchanged board is not
+        republished, so the history of the file is a history of the scene rather
+        than of the cron schedule.
+      </li>
+    </ol>
+
+    <h2 id="coverage">What Meter actually covers</h2>
+    <p>
+      Meter claims the full metro area — the five boroughs, near New Jersey,
+      Westchester, Long Island. Claiming a region is not the same as covering it,
+      and thin coverage nobody admits to is worse than a smaller promise kept. So
+      here is the real state of it, straight from the generated board: how many
+      venues are in the registry per region, how many of those have a verified
+      calendar the agent can read, and how many listings are live right now.
+    </p>
+  </div>
+
+  <div class="scroll-x" id="coverage-table" style="margin:1.5rem 0"></div>
+
+  <div class="prose">
+    <p>
+      A zero in the middle column is not a venue that refused; it is a venue whose
+      calendar is not machine-readable yet, and a job still to do. Where a region
+      shows no venues at all, Meter is claiming ground it has not covered — the
+      table is the apology.
+    </p>
+
+    <h2>Affiliation, and getting it wrong</h2>
+    <p>
+      Meter is not affiliated with, endorsed by, or speaking for any venue,
+      bookshop, series, library or institution listed here. Venue names and
+      addresses appear because they are facts about real places that host real
+      readings. Listings are drawn from those venues&rsquo; own public calendars and
+      link back to them.
+    </p>
+    <p>
+      If you run one of these rooms and want your calendar out of the index, say
+      so and it comes out — no argument, no form. If a listing is wrong, that is
+      Meter&rsquo;s fault rather than yours, and
+      <a href="submit.html#tips">telling us</a> gets it fixed by hand within a day
+      or so.
+    </p>
+
+    <h2>Featured writers</h2>
+    <p>
+      Work published here appears under a plain-language grant the writer agrees
+      to when they submit: non-exclusive, revocable, credited, and never licensed
+      onward or fed to a model. The
+      <a href="submit.html">full terms are on the submit page</a>, in language
+      short enough to actually read.
+    </p>
+
+    <h2>Colophon</h2>
+    <p>
+      Built as a static site: no tracking, no analytics, no cookies, no embedded
+      third-party anything. The only network requests this page makes are for its
+      own stylesheet, its own script, and its own data files. Nothing you do here
+      is recorded, because there is nowhere to record it to.
+    </p>
+    <p>
+      The typographic marks beside the wordmark are scansion — unstressed,
+      stressed, unstressed, stressed. It is the one place the data metaphor is
+      allowed to be literal.
+    </p>
+  </div>
+
+</main>
+
+<footer class="colophon">
+  <div class="shell">
+    <p>
+      <strong>Meter</strong> &middot; an independent literary calendar for the New
+      York metro area. Not affiliated with any venue it lists.
+      <a href="index.html">Home</a> &middot;
+      <a href="calendar.html">Calendar</a> &middot;
+      <a href="submit.html">Submit</a>
+    </p>
+  </div>
+</footer>
+
+<script src="assets/js/meter.js"></script>
+<script>
+  Meter.coverage({ target: "#coverage-table" });
+</script>
+</body>
+</html>

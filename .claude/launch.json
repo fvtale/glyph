@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "meter",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["tools/serve.mjs", "5199"],
+      "port": 5199
+    }
+  ]
+}

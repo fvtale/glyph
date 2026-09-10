@@ -1,0 +1,21 @@
+{
+  "note": "Featured poets and authors. Nothing appears here without an explicit, revocable, non-exclusive display grant from the writer, recorded per piece. A writer keeps every other right, including the right to have their work taken down: on request it comes down, no questions asked.",
+  "shape": {
+    "slug": "kebab-case, used as the profile anchor and joined from a listing's writers array",
+    "name": "as they want it printed",
+    "kind": "poet | author | both",
+    "based": "neighborhood or city, their words",
+    "bio": "two or three sentences, theirs if they sent one",
+    "links": { "site": "", "social": "", "buy": "" },
+    "books": [{ "title": "", "publisher": "", "year": 0 }],
+    "pieces": [{
+      "title": "",
+      "form": "poem | prose | excerpt",
+      "text": "the piece itself, line breaks preserved as \n",
+      "note": "optional: where it first appeared, or a note from the writer",
+      "grantedOn": "YYYY-MM-DD, the date they agreed to the terms on submit.html"
+    }],
+    "featured": { "from": "YYYY-MM-DD", "to": "YYYY-MM-DD" }
+  },
+  "writers": []
+}

@@ -1,0 +1,109 @@
+{
+  "note": "DESIGN FIXTURE, NOT LISTINGS. Every entry here is invented, which is why the sample flag is set and why calendar.html refuses to load this file unless the URL explicitly asks for it (calendar.html?preview=sample) and then prints a banner on every screen. Titles are deliberately generic descriptions of event types rather than named readers: no real person is described as appearing anywhere. Links go to venue homepages, not to invented event pages. These dates go stale — that is fine, the file exists to exercise layout, not to be right.",
+  "generatedAt": "2026-09-10T00:00:00+00:00",
+  "sample": true,
+  "coverage": { "regions": {}, "sources": {} },
+  "events": [
+    {
+      "id": "sample-poetry-project-1", "title": "Two poets, thirty minutes each", "kind": "reading",
+      "date": "2026-09-10", "time": "20:00", "endTime": "21:30",
+      "venueId": "poetry-project", "venue": "The Poetry Project", "neighborhood": "East Village", "region": "manhattan",
+      "writers": [], "price": "$10", "age": "All ages",
+      "accessibility": "Sanctuary is up one flight; no lift",
+      "description": "Two readers, questions after, wine in the back. The Monday night shape this room has kept for decades.",
+      "url": "https://www.poetryproject.org", "source": "curated", "firstSeen": "2026-09-01"
+    },
+    {
+      "id": "sample-nuyorican-1", "title": "Open mic, sign-up at 6:30", "kind": "openmic",
+      "date": "2026-09-11", "time": "19:00",
+      "venueId": "nuyorican", "venue": "Nuyorican Poets Cafe", "neighborhood": "Loisaida", "region": "manhattan",
+      "writers": [], "price": "$15", "age": "18+",
+      "description": "Twenty slots, three minutes each, first come. Arrive early if you want one.",
+      "url": "https://www.nuyorican.org", "source": "curated", "firstSeen": "2026-09-02"
+    },
+    {
+      "id": "sample-wendys-subway-1", "title": "Generative workshop: four Tuesdays", "kind": "workshop",
+      "date": "2026-09-15", "time": "18:30", "endTime": "20:30",
+      "venueId": "wendys-subway", "venue": "Wendy's Subway", "neighborhood": "Bushwick", "region": "brooklyn",
+      "writers": [], "price": "$180 sliding scale",
+      "registration": { "deadline": "2026-09-12", "sessions": 4, "capacity": 12, "url": "https://www.wendyssubway.com" },
+      "description": "Four sessions, new work each week, no critique of anything unfinished. Sliding scale, nobody turned away.",
+      "url": "https://www.wendyssubway.com", "source": "curated", "firstSeen": "2026-08-28"
+    },
+    {
+      "id": "sample-greenlight-1", "title": "Debut collection launch", "kind": "launch",
+      "date": "2026-09-17", "time": "19:30",
+      "venueId": "greenlight", "venue": "Greenlight Bookstore", "neighborhood": "Fort Greene", "region": "brooklyn",
+      "writers": [], "price": "Free", "age": "All ages",
+      "description": "Short reading, conversation, signing. Books available at the register.",
+      "url": "https://www.greenlightbookstore.com", "source": "curated", "firstSeen": "2026-09-05"
+    },
+    {
+      "id": "sample-poets-house-1", "title": "Craft talk: revision as demolition", "kind": "panel",
+      "date": "2026-09-18", "time": "18:00", "endTime": "19:30",
+      "venueId": "poets-house", "venue": "Poets House", "neighborhood": "Battery Park City", "region": "manhattan",
+      "writers": [], "price": "Free", "accessibility": "Step-free entrance and lift to all floors",
+      "description": "On throwing out the good lines. Bring a draft you are stuck on.",
+      "url": "https://poetshouse.org", "source": "curated", "firstSeen": "2026-09-06"
+    },
+    {
+      "id": "sample-kgb-bar-1", "title": "Prose night, three readers", "kind": "reading",
+      "date": "2026-09-20", "time": "19:00",
+      "venueId": "kgb-bar", "venue": "KGB Bar", "neighborhood": "East Village", "region": "manhattan",
+      "writers": [], "price": "Free, one-drink minimum", "age": "21+",
+      "accessibility": "Second floor, stairs only",
+      "description": "Short fiction and essays, twelve minutes each, red room, low ceiling.",
+      "url": "https://www.kgbbar.com", "source": "curated", "firstSeen": "2026-09-07"
+    },
+    {
+      "id": "sample-bowery-poetry-1", "title": "Friday night slam", "kind": "openmic",
+      "date": "2026-09-25", "time": "21:00", "endTime": "23:30",
+      "venueId": "bowery-poetry", "venue": "Bowery Poetry", "neighborhood": "NoHo", "region": "manhattan",
+      "writers": [], "price": "$20", "age": "18+",
+      "description": "Three rounds, five judges pulled from the room, cash prize for the winner.",
+      "url": "https://www.bowerypoetry.com", "source": "curated", "firstSeen": "2026-09-08"
+    },
+    {
+      "id": "sample-strand-1", "title": "Signing and short reading", "kind": "launch",
+      "date": "2026-09-26", "time": "19:00",
+      "venueId": "strand", "venue": "The Strand", "neighborhood": "Union Square", "region": "manhattan",
+      "writers": [], "price": "$18, includes a copy",
+      "description": "Rare Book Room, third floor. Ticket price includes the book.",
+      "url": "https://www.strandbooks.com", "source": "curated", "firstSeen": "2026-09-09"
+    },
+    {
+      "id": "sample-petes-1", "title": "Chapbook exchange and reading", "kind": "reading",
+      "date": "2026-09-29", "time": "20:00",
+      "venueId": "petes", "venue": "Pete's Candy Store", "neighborhood": "Williamsburg", "region": "brooklyn",
+      "writers": [], "price": "Free", "age": "21+",
+      "description": "Bring something you made and trade it. Reading in the back room, forty seats if that.",
+      "url": "https://www.petescandystore.com", "source": "curated", "firstSeen": "2026-09-09"
+    },
+    {
+      "id": "sample-housing-works-1", "title": "Translation panel, four languages", "kind": "panel",
+      "date": "2026-10-01", "time": "19:00", "endTime": "20:30",
+      "venueId": "housing-works", "venue": "Housing Works Bookstore", "neighborhood": "SoHo", "region": "manhattan",
+      "writers": [], "price": "$10 suggested, proceeds to the shop",
+      "description": "Four translators on the lines they could not carry over.",
+      "url": "https://www.housingworks.org/bookstore", "source": "curated", "firstSeen": "2026-09-09"
+    },
+    {
+      "id": "sample-astoria-bookshop-1", "title": "Manuscript group, first session", "kind": "workshop",
+      "date": "2026-10-03", "time": "11:00", "endTime": "13:00",
+      "venueId": "astoria-bookshop", "venue": "The Astoria Bookshop", "neighborhood": "Astoria", "region": "queens",
+      "writers": [], "price": "$40 per session",
+      "registration": { "deadline": "2026-09-28", "sessions": 6, "capacity": 8, "url": "https://www.astoriabookshop.com" },
+      "description": "Six weeks, eight writers, forty pages each. Full manuscripts only.",
+      "url": "https://www.astoriabookshop.com", "source": "curated", "firstSeen": "2026-09-09"
+    },
+    {
+      "id": "sample-bronx-library-1", "title": "Poetry in the community room", "kind": "reading",
+      "date": "2026-10-08", "time": "17:30",
+      "venueId": "bronx-library", "venue": "Bronx Library Center", "neighborhood": "Fordham", "region": "bronx",
+      "writers": [], "price": "Free", "age": "All ages",
+      "accessibility": "Step-free throughout",
+      "description": "Local readers, open sign-up for the second half, free and no ticket needed.",
+      "url": "https://www.nypl.org/locations/bronx-library-center", "source": "curated", "firstSeen": "2026-09-09"
+    }
+  ]
+}

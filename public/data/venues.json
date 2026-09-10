@@ -1,0 +1,30 @@
+{
+  "note": "Venues are real, long-running literary institutions in the New York metro area. Meter is not affiliated with any of them. Listings are read from each venue's own public calendar and every one links back to it — the venue's page is always the authority on time, price, and whether the thing is still happening. See about.html.",
+  "regions": {
+    "manhattan": "Manhattan",
+    "brooklyn": "Brooklyn",
+    "queens": "Queens",
+    "bronx": "The Bronx",
+    "staten-island": "Staten Island",
+    "near-nj": "Near New Jersey",
+    "westchester": "Westchester",
+    "long-island": "Long Island"
+  },
+  "venues": [
+    { "id": "nuyorican",       "name": "Nuyorican Poets Cafe",        "street": "236 E 3rd St",      "neighborhood": "Loisaida",         "borough": "Manhattan", "region": "manhattan", "founded": 1973, "seats": 120, "site": "https://www.nuyorican.org" },
+    { "id": "poetry-project",  "name": "The Poetry Project",          "street": "131 E 10th St",     "neighborhood": "East Village",     "borough": "Manhattan", "region": "manhattan", "founded": 1966, "seats": 150, "site": "https://www.poetryproject.org" },
+    { "id": "bowery-poetry",   "name": "Bowery Poetry",               "street": "308 Bowery",        "neighborhood": "NoHo",             "borough": "Manhattan", "region": "manhattan", "founded": 2002, "seats": 90,  "site": "https://www.bowerypoetry.com" },
+    { "id": "kgb-bar",         "name": "KGB Bar",                     "street": "85 E 4th St",       "neighborhood": "East Village",     "borough": "Manhattan", "region": "manhattan", "founded": 1993, "seats": 55,  "site": "https://www.kgbbar.com" },
+    { "id": "franklin-park",   "name": "Franklin Park",               "street": "618 St Johns Pl",   "neighborhood": "Crown Heights",    "borough": "Brooklyn",  "region": "brooklyn",  "founded": 2009, "seats": 80,  "site": "https://franklinparkbrooklyn.com" },
+    { "id": "housing-works",   "name": "Housing Works Bookstore",     "street": "126 Crosby St",     "neighborhood": "SoHo",             "borough": "Manhattan", "region": "manhattan", "founded": 1996, "seats": 110, "site": "https://www.housingworks.org/bookstore" },
+    { "id": "poets-house",     "name": "Poets House",                 "street": "10 River Terrace",  "neighborhood": "Battery Park City","borough": "Manhattan", "region": "manhattan", "founded": 1985, "seats": 130, "site": "https://poetshouse.org" },
+    { "id": "greenlight",      "name": "Greenlight Bookstore",        "street": "686 Fulton St",     "neighborhood": "Fort Greene",      "borough": "Brooklyn",  "region": "brooklyn",  "founded": 2009, "seats": 70,  "site": "https://www.greenlightbookstore.com" },
+    { "id": "petes",           "name": "Pete's Candy Store",          "street": "709 Lorimer St",    "neighborhood": "Williamsburg",     "borough": "Brooklyn",  "region": "brooklyn",  "founded": 1999, "seats": 40,  "site": "https://www.petescandystore.com" },
+    { "id": "92ny",            "name": "92NY Unterberg Poetry Center","street": "1395 Lexington Ave","neighborhood": "Upper East Side",  "borough": "Manhattan", "region": "manhattan", "founded": 1939, "seats": 200, "site": "https://www.92ny.org" },
+    { "id": "strand",          "name": "The Strand",                  "street": "828 Broadway",      "neighborhood": "Union Square",     "borough": "Manhattan", "region": "manhattan", "founded": 1927, "seats": 100, "site": "https://www.strandbooks.com" },
+    { "id": "wendys-subway",   "name": "Wendy's Subway",              "street": "379 Bushwick Ave",  "neighborhood": "Bushwick",         "borough": "Brooklyn",  "region": "brooklyn",  "founded": 2013, "seats": 45,  "site": "https://www.wendyssubway.com" },
+    { "id": "dixon-place",     "name": "Dixon Place",                 "street": "161A Chrystie St",  "neighborhood": "Lower East Side",  "borough": "Manhattan", "region": "manhattan", "founded": 1986, "seats": 85,  "site": "https://dixonplace.org" },
+    { "id": "astoria-bookshop","name": "The Astoria Bookshop",        "street": "31-29 31st St",     "neighborhood": "Astoria",          "borough": "Queens",    "region": "queens",    "founded": 2013, "seats": 50,  "site": "https://www.astoriabookshop.com" },
+    { "id": "bronx-library",   "name": "Bronx Library Center",        "street": "310 E Kingsbridge Rd","neighborhood": "Fordham",        "borough": "Bronx",     "region": "bronx",     "founded": 2006, "seats": 95,  "site": "https://www.nypl.org/locations/bronx-library-center" }
+  ]
+}

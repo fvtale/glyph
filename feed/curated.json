@@ -1,0 +1,5 @@
+{
+  "note": "Hand-entered listings. Merged on every run and always win a dedupe tie against a scraped listing, so this file is how you correct the robots. Anything in here must be verified against the venue first: a curated listing carries your word rather than a feed's.",
+  "shape": "See docs/feed-contract.md. Required: id, title, kind, date, time, venue, venueId, region, url. The source field is overwritten with curated, so leave it out.",
+  "events": []
+}

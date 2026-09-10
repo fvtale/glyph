@@ -1,0 +1,128 @@
+name: Update the calendar
+
+# Sweeps every verified venue feed twice a day, writes public/data/events.json,
+# and only commits when the listings actually changed.
+#
+# Times are UTC: 11:00 and 23:00 are 07:00 and 19:00 Eastern during EDT, an hour
+# later during EST. Deliberately offset from the datarail.org events feed so the
+# two are not competing for the same runners. GitHub's scheduler is best-effort
+# and can lag by a few minutes, which does not matter at this cadence.
+
+on:
+  schedule:
+    - cron: '0 11 * * *'
+    - cron: '0 23 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'What to do'
+        type: choice
+        default: dry-run
+        options:
+          - dry-run     # fetch and report, write nothing
+          - probe       # hunt for venue .ics endpoints, write nothing
+          - build       # the real thing
+          - bootstrap   # first run only: allowed to write an empty board
+
+concurrency:
+  group: meter-calendar
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.build.outputs.changed }}
+      count: ${{ steps.build.outputs.count }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: feed/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r feed/requirements.txt
+
+      - name: Probe for venue calendars
+        if: github.event.inputs.mode == 'probe'
+        run: python feed/build.py --probe
+
+      - name: Build the board
+        id: build
+        if: github.event.inputs.mode != 'probe'
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: |
+          # A schedule fires with no inputs at all, so an empty mode has to mean
+          # the real build — otherwise the cron would dry-run twice a day forever
+          # and the board would never move.
+          MODE="${{ github.event.inputs.mode }}"
+          [ -n "$MODE" ] || MODE=build
+          case "$MODE" in
+            build)     python feed/build.py ;;
+            bootstrap) python feed/build.py --bootstrap ;;
+            *)         python feed/build.py --dry-run ;;
+          esac
+
+      - name: Commit the board
+        if: steps.build.outputs.changed == 'true'
+        run: |
+          # Gate on the file rather than on the event: a manual build should
+          # commit, a dry run leaves nothing to commit, and this cannot get the
+          # two confused.
+          # status, not diff: on the bootstrap run the file is brand new and
+          # untracked, which diff reports as no change at all.
+          if [ -z "$(git status --porcelain -- public/data/events.json)" ]; then
+            echo "nothing written to commit"
+            exit 0
+          fi
+          git config user.name  "meter-calendar"
+          git config user.email "contact@datarail.org"
+          git add public/data/events.json
+          git commit -m "Update the calendar (${{ steps.build.outputs.count }} listings)"
+          git push
+
+  # Copies public/ into datarail-site/public/meter, whose own deploy workflow
+  # ships it to IONOS on push. Off until the repository variable PUBLISH_TO_SITE
+  # is set to true and a DATARAIL_SITE_TOKEN secret with write access to that
+  # repo exists — the same dry-run-until-a-variable-flips shape the email
+  # receptionist uses.
+  publish:
+    needs: build
+    if: needs.build.outputs.changed == 'true' && vars.PUBLISH_TO_SITE == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Meter
+        uses: actions/checkout@v5
+        with:
+          path: meter
+
+      - name: Check out the site
+        uses: actions/checkout@v5
+        with:
+          repository: fvtale/datarail-site
+          token: ${{ secrets.DATARAIL_SITE_TOKEN }}
+          path: site
+
+      - name: Copy the built site into place
+        run: |
+          rsync -a --delete meter/public/ site/public/meter/
+
+      - name: Commit to the site
+        working-directory: site
+        run: |
+          git config user.name  "meter-calendar"
+          git config user.email "contact@datarail.org"
+          if git diff --quiet; then
+            echo "site already matches, nothing to push"
+            exit 0
+          fi
+          git add public/meter
+          git commit -m "Update Meter (${{ needs.build.outputs.count }} listings)"
+          git push

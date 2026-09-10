@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" data-skin="paper">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meter — Poets and authors</title>
+<meta name="description" content="Poems and prose by writers in the New York metro area, published in full with their permission and on their terms.">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="../assets/css/meter.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="shell top-inner">
+    <a class="wordmark" href="../index.html">Meter<span class="scan">˘ ˉ ˘ ˉ</span></a>
+    <nav class="links" aria-label="Main">
+      <a href="../calendar.html">Calendar</a>
+      <a href="index.html" aria-current="page">Poets &amp; authors</a>
+      <a href="../submit.html">Submit</a>
+      <a href="../about.html">About</a>
+    </nav>
+  </div>
+</header>
+
+<main class="shell">
+
+  <h1>Poets and authors</h1>
+
+  <div class="prose">
+    <p class="lede">
+      Writers from around the metro area, published in full rather than teased.
+      Every piece here appears with its author&rsquo;s permission and remains entirely
+      theirs.
+    </p>
+  </div>
+
+  <div id="roster"></div>
+
+  <div class="prose" style="margin-top:3rem">
+    <h2>How work gets here</h2>
+    <p>
+      Submissions are open to anyone writing in the metro area and are read by a
+      person. The grant a writer agrees to is non-exclusive, revocable and
+      credited: they keep copyright, they can publish the same piece anywhere
+      else, and one email takes it down.
+      <a href="../submit.html">The terms are short enough to read in a minute.</a>
+    </p>
+  </div>
+
+</main>
+
+<footer class="colophon">
+  <div class="shell">
+    <p>
+      All work on this page is copyright its author and is reproduced with
+      permission. Nothing here is licensed onward, sold, or used to train a model.
+      <a href="../index.html">Home</a> &middot;
+      <a href="../submit.html">Submit</a> &middot;
+      <a href="../about.html">About</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    "use strict";
+
+    function escapeHtml(value) {
+      return String(value == null ? "" : value)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
+    var KIND = { poet: "Poet", author: "Author", both: "Poet and author" };
+
+    // A piece is rendered inside <pre>: the line breaks a poet sent are the poem,
+    // and no amount of responsive layout is worth reflowing them.
+    function pieceHtml(piece) {
+      var html = '<div class="piece">';
+      if (piece.title) html += "<h3>" + escapeHtml(piece.title) + "</h3>";
+      html += "<pre>" + escapeHtml(piece.text) + "</pre>";
+      var credit = [];
+      if (piece.form && piece.form !== "poem") credit.push(escapeHtml(piece.form));
+      if (piece.note) credit.push(escapeHtml(piece.note));
+      if (credit.length) html += '<p class="credit">' + credit.join(" &middot; ") + "</p>";
+      return html + "</div>";
+    }
+
+    function writerHtml(writer) {
+      var links = writer.links || {};
+      var html = '<section class="writer" id="' + escapeHtml(writer.slug) + '">';
+      html += "<h2>" + escapeHtml(writer.name) + "</h2>";
+
+      var line = [];
+      if (writer.kind && KIND[writer.kind]) line.push(KIND[writer.kind]);
+      if (writer.based) line.push(escapeHtml(writer.based));
+      if (line.length) html += '<p class="count">' + line.join(" &middot; ") + "</p>";
+
+      if (writer.bio) html += '<div class="prose"><p>' + escapeHtml(writer.bio) + "</p></div>";
+
+      (writer.pieces || []).forEach(function (piece) { html += pieceHtml(piece); });
+
+      var tail = [];
+      if (links.site) {
+        tail.push('<a href="' + escapeHtml(links.site) +
+                  '" target="_blank" rel="noopener noreferrer">Their site</a>');
+      }
+      if (links.social) {
+        tail.push('<a href="' + escapeHtml(links.social) +
+                  '" target="_blank" rel="noopener noreferrer">Elsewhere</a>');
+      }
+      if (links.buy) {
+        tail.push('<a href="' + escapeHtml(links.buy) +
+                  '" target="_blank" rel="noopener noreferrer">Buy the book</a>');
+      }
+      (writer.books || []).forEach(function (book) {
+        var parts = [escapeHtml(book.title)];
+        if (book.publisher) parts.push(escapeHtml(book.publisher));
+        if (book.year) parts.push(book.year);
+        tail.push(parts.join(", "));
+      });
+      if (tail.length) html += '<p class="credit">' + tail.join(" &middot; ") + "</p>";
+
+      html += '<p class="credit">&copy; ' + escapeHtml(writer.name) +
+              ", published here with permission.</p>";
+      return html + "</section><hr>";
+    }
+
+    var target = document.getElementById("roster");
+
+    fetch("../data/writers.json", { cache: "no-cache" })
+      .then(function (response) {
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        return response.json();
+      })
+      .then(function (data) {
+        var writers = (data.writers || []).filter(function (writer) {
+          return writer && writer.slug && writer.name;
+        });
+        if (!writers.length) {
+          target.innerHTML =
+            '<div class="empty"><h2>The roster opens with the first accepted submission</h2>' +
+            "<p>Nobody is listed here yet, and inventing a local poet to fill the " +
+            "space would be a strange way to start a literary magazine.</p>" +
+            '<p><a class="btn" href="../submit.html">Be the first</a></p></div>';
+          return;
+        }
+        target.innerHTML = writers.map(writerHtml).join("");
+      })
+      .catch(function () {
+        target.innerHTML =
+          '<div class="empty"><h2>The roster is not readable from here</h2>' +
+          "<p>This page reads its writers from a data file, which a browser will " +
+          "not fetch when the site is opened straight from disk.</p></div>";
+      });
+  })();
+</script>
+</body>
+</html>

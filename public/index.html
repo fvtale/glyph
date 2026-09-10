@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" data-skin="paper">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meter — Poetry and writing in the New York metro area</title>
+<meta name="description" content="A calendar of readings, open mics, workshops, launches and panels across the New York metro area, plus work from local poets and authors published with their permission.">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="assets/css/meter.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="shell top-inner">
+    <a class="wordmark" href="index.html">Meter<span class="scan">˘ ˉ ˘ ˉ</span></a>
+    <nav class="links" aria-label="Main">
+      <a href="calendar.html">Calendar</a>
+      <a href="poets/index.html">Poets &amp; authors</a>
+      <a href="submit.html">Submit</a>
+      <a href="about.html">About</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <section class="shell hero">
+    <h1>Writing is data.<br>The most beautiful kind.</h1>
+    <p class="lede">
+      Meter keeps the calendar for the New York metro literary scene — readings,
+      open mics, workshops, book launches, craft talks — and publishes work by
+      local poets and authors, with their permission and on their terms.
+    </p>
+    <p>
+      <a class="btn" href="calendar.html">See what&rsquo;s on</a>
+      <a class="btn btn--ghost" href="submit.html">Send us your work</a>
+    </p>
+  </section>
+
+  <section class="shell">
+    <h2>Coming up</h2>
+    <div class="notice" id="sample-banner" hidden>
+      <strong>Sample data.</strong> These listings are invented fixtures used for
+      design work, not real events. Nobody is reading anywhere on this page.
+    </div>
+    <div id="upcoming"></div>
+    <p><a href="calendar.html">The whole board &rarr;</a></p>
+  </section>
+
+  <section class="shell">
+    <h2>Why a data site for poems</h2>
+    <div class="prose">
+      <p>
+        A reading is a piece of data with a terrible half-life. It exists as an
+        Instagram story, a line on a chalkboard, a Squarespace page nobody
+        updated, and then it is Thursday and you missed it. Multiply that by a
+        few hundred rooms across five boroughs and two states and the scene
+        becomes something you can only know by already being in it.
+      </p>
+      <p>
+        So: writing is data. Not as a gimmick — there is no scansion engine here,
+        no word-frequency dashboard telling you what a poem means. The metaphor
+        earns its keep as a discipline. If the calendar is a dataset, then it has
+        a schema, it gets validated, it cites its sources, it says what it does
+        not know, and it never quietly goes wrong on someone who was counting on
+        it to plan a Thursday night.
+      </p>
+    </div>
+    <div class="cards" style="margin-top:1.5rem">
+      <div class="card">
+        <h3>Sourced, not scraped blind</h3>
+        <p>
+          Every listing comes from a venue&rsquo;s own published calendar and links
+          straight back to it. The venue is the authority; Meter is an index.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Coverage is published</h3>
+        <p>
+          Meter claims the whole metro area, which is not the same as covering it.
+          The <a href="about.html#coverage">coverage table</a> prints the gap
+          rather than leaving you to infer it from an empty filter.
+        </p>
+      </div>
+      <div class="card">
+        <h3>A poem is not a row</h3>
+        <p>
+          The calendar gets the data room. Poems and prose get paper, a serif, and
+          a reading measure. Two rooms, on purpose.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="shell">
+    <h2>Featured writers</h2>
+    <div class="prose">
+      <p>
+        Meter publishes whole pieces, not teasers — a few poems or a prose
+        excerpt, on their own page, with the writer keeping every right they
+        started with. Submissions are open and read by a person.
+      </p>
+    </div>
+    <p>
+      <a class="btn btn--ghost" href="poets/index.html">The roster</a>
+      <a class="btn btn--ghost" href="submit.html">Submission terms</a>
+    </p>
+  </section>
+
+</main>
+
+<footer class="colophon">
+  <div class="shell">
+    <p>
+      <strong>Meter</strong> is an independent index of literary events in the New
+      York metro area. It is not affiliated with, endorsed by, or speaking for any
+      venue, bookshop, series or institution it lists. Times, prices and whether a
+      thing is still happening are the venue&rsquo;s to state — always check the link.
+    </p>
+    <p>
+      Work by featured writers appears with their permission and remains theirs.
+      <a href="about.html">About and coverage</a> &middot;
+      <a href="submit.html">Submit</a>
+    </p>
+  </div>
+</footer>
+
+<script src="assets/js/meter.js"></script>
+<script>
+  Meter.upcoming({ target: "#upcoming", banner: "#sample-banner", limit: 5 });
+</script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" data-skin="board">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meter — The board</title>
+<meta name="description" content="Readings, open mics, workshops, launches and panels across the New York metro area. Swept from venue calendars twice a day.">
+<meta name="color-scheme" content="dark">
+<link rel="stylesheet" href="assets/css/meter.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="shell top-inner">
+    <a class="wordmark" href="index.html">Meter<span class="scan">˘ ˉ ˘ ˉ</span></a>
+    <nav class="links" aria-label="Main">
+      <a href="calendar.html" aria-current="page">Calendar</a>
+      <a href="poets/index.html">Poets &amp; authors</a>
+      <a href="submit.html">Submit</a>
+      <a href="about.html">About</a>
+    </nav>
+  </div>
+</header>
+
+<main class="shell">
+
+  <h1 class="visually-hidden">The board</h1>
+
+  <div class="notice notice--loud" id="sample-banner" hidden>
+    <strong>Sample data — nothing here is real.</strong> This page is showing
+    <code>events.sample.json</code>, a design fixture of invented listings. No
+    reader is appearing anywhere shown below. Drop
+    <code>?preview=sample</code> from the URL for the real board.
+  </div>
+
+  <div class="controls">
+    <div class="chips" role="group" aria-label="Filter by kind">
+      <button class="chip" type="button" data-filter="kind" data-value="reading"  aria-pressed="false">Readings</button>
+      <button class="chip" type="button" data-filter="kind" data-value="openmic"  aria-pressed="false">Open mics</button>
+      <button class="chip" type="button" data-filter="kind" data-value="workshop" aria-pressed="false">Workshops</button>
+      <button class="chip" type="button" data-filter="kind" data-value="launch"   aria-pressed="false">Launches</button>
+      <button class="chip" type="button" data-filter="kind" data-value="panel"    aria-pressed="false">Panels</button>
+    </div>
+    <div class="chips" id="region-chips" role="group" aria-label="Filter by region"></div>
+    <div class="chips" role="group" aria-label="Filter by price">
+      <button class="chip" type="button" data-filter="free" data-value="free" aria-pressed="false">Free only</button>
+    </div>
+    <label class="visually-hidden" for="q">Search listings</label>
+    <input class="search" id="q" type="search" placeholder="Search title, venue, neighbourhood">
+    <span class="count" id="count" aria-live="polite"></span>
+  </div>
+
+  <div id="board"></div>
+
+  <p class="count" style="margin-top:2rem">
+    Regions with no chip have no venue in the registry yet &mdash;
+    <a href="about.html#coverage">see what is and is not covered</a>.
+  </p>
+
+</main>
+
+<footer class="colophon">
+  <div class="shell">
+    <p>
+      Every listing links to the venue&rsquo;s own page, which is the authority on
+      time, price and whether it is still happening. Meter is not affiliated with
+      any venue it lists. Feeds are swept twice a day; a venue whose feed breaks
+      keeps its previous listings rather than vanishing, so a stale row is
+      possible — the link is not.
+    </p>
+    <p>
+      Something missing or wrong? <a href="submit.html#tips">Tell us</a> and it
+      gets fixed by hand, which outranks the robots.
+    </p>
+  </div>
+</footer>
+
+<script src="assets/js/meter.js"></script>
+<script>
+  // Region chips are built from the venue registry rather than hardcoded, so a
+  // dead filter can never appear for a region with nothing in it.
+  fetch("data/venues.json", { cache: "no-cache" })
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+      var counts = {};
+      (data.venues || []).forEach(function (venue) {
+        counts[venue.region] = (counts[venue.region] || 0) + 1;
+      });
+      var wrap = document.getElementById("region-chips");
+      Object.keys(Meter.regions).forEach(function (region) {
+        if (!counts[region]) return;
+        var button = document.createElement("button");
+        button.className = "chip";
+        button.type = "button";
+        button.setAttribute("data-filter", "region");
+        button.setAttribute("data-value", region);
+        button.setAttribute("aria-pressed", "false");
+        button.textContent = Meter.regions[region];
+        wrap.appendChild(button);
+      });
+    })
+    .catch(function () { /* no chips is a worse page, not a broken one */ })
+    .then(function () {
+      Meter.board({
+        target: "#board",
+        count: "#count",
+        banner: "#sample-banner",
+        search: "#q"
+      });
+    });
+</script>
+</body>
+</html>

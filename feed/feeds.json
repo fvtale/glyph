@@ -1,0 +1,12 @@
+{
+  "note": "Which venues have a machine-readable calendar. A venue is only swept once its feed is verified: run the calendar workflow in probe mode, read the report, paste the working URL in here with verified true. Nothing is guessed into production — an unverified URL that 404s would quietly cost that venue its listings.",
+  "conventions": [
+    { "id": "squarespace",   "pattern": "{site}/events?format=ical",  "note": "Squarespace event collections; the path is often /events, sometimes /calendar." },
+    { "id": "squarespace-alt", "pattern": "{site}/calendar?format=ical", "note": "Same, other common collection slug." },
+    { "id": "tec-ical",      "pattern": "{site}/events/?ical=1",      "note": "WordPress + The Events Calendar." },
+    { "id": "wp-feed",       "pattern": "{site}/events/feed/",        "note": "WordPress events RSS; needs an RSS adapter, not yet written." },
+    { "id": "root-ics",      "pattern": "{site}/events.ics",          "note": "Hand-rolled sites sometimes just drop a file." },
+    { "id": "calendar-ics",  "pattern": "{site}/calendar.ics",        "note": "As above." }
+  ],
+  "feeds": {}
+}

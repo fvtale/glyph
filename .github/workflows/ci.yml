@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: feed/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          pip install -r feed/requirements.txt
+          pip install pytest
+
+      - name: Check every data file parses
+        run: |
+          for file in public/data/*.json feed/*.json; do
+            python -c "import json,sys; json.load(open(sys.argv[1], encoding='utf-8'))" "$file"
+            echo "ok  $file"
+          done
+
+      - name: Check the venue registry against the contract
+        run: python tests/check_registry.py
+
+      - name: Tests
+        run: pytest -q
