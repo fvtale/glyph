@@ -59,9 +59,15 @@ jobs:
           TITLE: ${{ steps.judge.outputs.title }}
           CLEAN: ${{ steps.judge.outputs.clean }}
         run: |
-          if gh pr view "$BRANCH" --json number >/dev/null 2>&1; then
-            gh pr edit "$BRANCH" --title "$TITLE" --body-file "$RUNNER_TEMP/body.md"
-            echo "A pull request was already open for $BRANCH; refreshed it."
+          # Only an OPEN pull request counts. `gh pr view <branch>` also matches
+          # closed ones, so a proposal re-sent after its first PR was closed —
+          # a venue added to the registry, the email moved back to the inbox —
+          # would silently rewrite the dead PR and never reach anyone. The first
+          # end-to-end test did exactly that.
+          existing=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh pr edit "$existing" --title "$TITLE" --body-file "$RUNNER_TEMP/body.md"
+            echo "Pull request #$existing was already open for $BRANCH; refreshed it."
             exit 0
           fi
           draft=""
