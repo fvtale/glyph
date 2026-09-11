@@ -118,6 +118,18 @@ def read_previous() -> dict:
         sys.exit(f"error: {OUTPUT} is not valid JSON ({exc})")
 
 
+def as_curated(listing: dict) -> dict:
+    """A listing as the board sees an approved one.
+
+    Approved listings carry no source of their own; the builder stamps it as it
+    reads them. Everything that judges an approved listing — the intake, the
+    registry check — goes through here, so nothing can disagree with the builder
+    about what it is looking at. The intake once did, and failed every genuine
+    proposal for lacking a field the builder always supplies.
+    """
+    return dict(listing, source="curated")
+
+
 def read_curated() -> list[dict]:
     """Every hand-approved listing: curated.json plus each file in feed/curated/."""
     listings: list[dict] = []
@@ -134,9 +146,7 @@ def read_curated() -> list[dict]:
                 continue
             if isinstance(item, dict):
                 listings.append(item)
-    for listing in listings:
-        listing["source"] = "curated"
-    return listings
+    return [as_curated(listing) for listing in listings]
 
 
 # ---------------------------------------------------------------------------

@@ -16,7 +16,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "feed"))
 
-from build import CURATED_DIR, KINDS, PROBE_TYPES, REGIONS, why_invalid   # noqa: E402
+from build import (CURATED_DIR, KINDS, PROBE_TYPES, REGIONS,   # noqa: E402
+                   as_curated, why_invalid)
 
 VENUES = ROOT / "public" / "data" / "venues.json"
 FEEDS = ROOT / "feed" / "feeds.json"
@@ -92,7 +93,7 @@ def main() -> int:
             if not isinstance(item, dict):
                 problems.append(f"feed/curated/{path.name}: not a JSON object")
                 continue
-            reason = why_invalid(dict(item, source="curated"), venue_map, temporal=False)
+            reason = why_invalid(as_curated(item), venue_map, temporal=False)
             if reason:
                 problems.append(f"feed/curated/{path.name}: {reason}")
             if item.get("id") != path.stem:

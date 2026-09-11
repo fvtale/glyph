@@ -34,7 +34,8 @@ from urllib.parse import urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from build import CURATED, CURATED_DIR, ROOT, emit_output, why_invalid   # noqa: E402
+from build import (CURATED, CURATED_DIR, ROOT, as_curated,               # noqa: E402
+                   emit_output, why_invalid)
 from sources import load_venues                                        # noqa: E402
 from sources.base import normalize_title                               # noqa: E402
 
@@ -99,9 +100,10 @@ def review(proposed: list[tuple[str, object]], venues: dict[str, dict],
             continue
         verdict = Verdict(name, data)
 
-        # The full check, dates included: a new proposal for last Tuesday is a
+        # Judged exactly as the board will see it once merged, and with the
+        # full check, dates included: a new proposal for last Tuesday is a
         # typo in the year, not a reading that already happened.
-        reason = why_invalid(data, venues, temporal=True)
+        reason = why_invalid(as_curated(data), venues, temporal=True)
         if reason:
             verdict.problems.append(reason)
 

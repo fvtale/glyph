@@ -25,6 +25,13 @@ NEXT_WEEK = (date.today() + timedelta(days=7)).isoformat()
 
 
 def listing(**overrides) -> dict:
+    """A listing file exactly as the receptionist writes one.
+
+    Note what is absent: `source`. The board builder stamps that on approved
+    listings as it reads them, so real files never carry it. This fixture once
+    did, which is how the tests stayed green while every genuine proposal
+    opened as a draft for "missing source".
+    """
     base = {
         "id": f"kgb-bar-{NEXT_WEEK}-prose-night",
         "title": "Prose night",
@@ -33,10 +40,11 @@ def listing(**overrides) -> dict:
         "time": "19:00",
         "venue": "KGB Bar",
         "venueId": "kgb-bar",
+        "neighborhood": "East Village",
         "region": "manhattan",
+        "writers": [],
         "url": "https://www.kgbbar.com/events/prose-night",
         "price": "Free",
-        "source": "curated",
     }
     base.update(overrides)
     return base
@@ -56,6 +64,17 @@ def test_a_complete_listing_is_clean():
     verdicts = judge(listing())
     assert intake.is_clean(verdicts)
     assert verdicts[0].problems == []
+
+
+def test_a_file_with_no_source_is_judged_as_the_board_will_see_it():
+    # Regression, found by the first end-to-end run: the judge checked the raw
+    # file, which never carries a source, and so failed every real proposal
+    # for a field the builder always supplies. The one-click path never ran.
+    item = listing()
+    assert "source" not in item
+    verdicts = judge(item)
+    assert "missing source" not in verdicts[0].problems
+    assert intake.is_clean(verdicts)
 
 
 def test_a_listing_in_the_past_is_a_problem_for_a_new_proposal():
