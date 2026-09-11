@@ -1,0 +1,15 @@
+{
+  "id": "kgb-bar-2026-10-11-test-intake-check-not-a-real-event",
+  "title": "TEST — intake check, not a real event",
+  "kind": "reading",
+  "date": "2026-10-11",
+  "time": "19:00",
+  "venueId": "kgb-bar",
+  "venue": "KGB Bar",
+  "neighborhood": "East Village",
+  "region": "manhattan",
+  "writers": [],
+  "url": "https://www.kgbbar.com",
+  "price": "Free",
+  "description": "End-to-end test of Glyph's listing intake. This proposal will be closed without merging."
+}
