@@ -1,0 +1,50 @@
+{
+  "generatedAt": "2026-09-12T06:24:16+00:00",
+  "sample": false,
+  "coverage": {
+    "regions": {
+      "bronx": {
+        "venues": 1,
+        "wired": 0,
+        "listings": 0
+      },
+      "brooklyn": {
+        "venues": 4,
+        "wired": 0,
+        "listings": 0
+      },
+      "long-island": {
+        "venues": 0,
+        "wired": 0,
+        "listings": 0
+      },
+      "manhattan": {
+        "venues": 9,
+        "wired": 0,
+        "listings": 0
+      },
+      "near-nj": {
+        "venues": 0,
+        "wired": 0,
+        "listings": 0
+      },
+      "queens": {
+        "venues": 1,
+        "wired": 0,
+        "listings": 0
+      },
+      "staten-island": {
+        "venues": 0,
+        "wired": 0,
+        "listings": 0
+      },
+      "westchester": {
+        "venues": 0,
+        "wired": 0,
+        "listings": 0
+      }
+    },
+    "sources": {}
+  },
+  "events": []
+}
