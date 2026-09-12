@@ -4,9 +4,8 @@ name: Update the calendar
 # commits it only when the listings actually changed, and publishes to
 # datarail-site when they did.
 #
-# Runs whenever an approved listing lands on main — merging a listing pull
-# request is what puts it on the board — and on demand. The twice-daily sweep is
-# commented out below until there is a feed to sweep.
+# Runs twice a day, whenever an approved listing lands on main — merging a
+# listing pull request is what puts it on the board — and on demand.
 
 on:
   push:
@@ -17,18 +16,20 @@ on:
       - 'feed/feeds.json'
       - 'public/data/venues.json'
 
-  # The schedule is off until at least one source actually produces listings.
-  # build.py exits non-zero on an empty board on purpose (rule 1: never blank
-  # the board), so a cron firing against zero verified feeds fails every twelve
-  # hours — which trains you to ignore the one alarm that is supposed to mean
-  # something. Uncomment both lines once the board has listings on it.
+  # Twice a day, the same cadence as the datarail.org/events feed — and exactly
+  # six hours out of phase with it (that one runs at 10:00 and 22:00 UTC), so
+  # the two never queue for a runner at the same moment or hit the same hosts
+  # together.
   #
-  # Times are UTC: 11:00 and 23:00 are 07:00 and 19:00 Eastern during EDT, an
-  # hour later during EST, offset from the datarail.org events feed.
+  # 04:00 and 16:00 UTC is midnight and noon in New York during EDT, an hour
+  # earlier during EST. GitHub's scheduler is best-effort and can run late under
+  # load; at this cadence that does not matter.
   #
-  # schedule:
-  #   - cron: '0 11 * * *'
-  #   - cron: '0 23 * * *'
+  # A run that finds nothing to list does not fail: an empty board that was
+  # already empty is not a blanking. Losing listings still is, and still shouts.
+  schedule:
+    - cron: '0 4 * * *'
+    - cron: '0 16 * * *'
 
   workflow_dispatch:
     inputs:

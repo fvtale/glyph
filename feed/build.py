@@ -412,6 +412,25 @@ def fingerprint(payload: dict) -> str:
     )
 
 
+def refusal(listings: list, previous: dict, *, bootstrap: bool,
+            board_exists: bool) -> str | None:
+    """Why a run holding these listings must not write, or None if it may.
+
+    Rule 1 is "never blank the board", and that is about *losing* listings. A
+    board that has never had any is not being blanked, it is simply empty —
+    which is a fact about the scene's coverage, not a fault. Failing on it would
+    put a red run on the schedule twice a day for a known reason, and an alarm
+    that cries every twelve hours is one nobody reads by the end of the week.
+    """
+    if listings or bootstrap:
+        return None
+    if previous.get("events"):
+        return "the board had listings and now has none"
+    if not board_exists:
+        return "there is no board yet; run once with --bootstrap to create one"
+    return None
+
+
 def emit_output(name: str, value: str) -> None:
     path = os.environ.get("GITHUB_OUTPUT")
     if path:
@@ -482,13 +501,16 @@ def main() -> int:
     }
 
     print(f"\n{len(listings)} listings on the board")
-    if not listings and not args.bootstrap:
-        # Rule 1. An empty board is either a total outage or a bug, and either
-        # way the right move is to leave yesterday's board up and shout.
-        print("error: zero listings - refusing to blank the board", file=sys.stderr)
+    stop = refusal(listings, previous, bootstrap=args.bootstrap,
+                   board_exists=OUTPUT.exists())
+    if stop:
+        # Rule 1: leave yesterday's board up and shout.
+        print("error: " + stop + " - refusing to write", file=sys.stderr)
         emit_output("changed", "false")
         emit_output("count", "0")
         return 1
+    if not listings:
+        print("nothing to list yet; the empty board stays as it is")
 
     changed = (not OUTPUT.exists()) or fingerprint(payload) != fingerprint(previous)
     emit_output("changed", "true" if changed else "false")

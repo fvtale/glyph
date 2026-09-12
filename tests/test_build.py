@@ -229,6 +229,33 @@ def test_first_seen_is_carried_across_runs():
     assert current[0]["firstSeen"] == "2026-01-01"
 
 
+class TestRefusingToWrite:
+    """Rule 1 is about losing listings, not about having none yet."""
+
+    def test_a_board_that_had_listings_and_now_has_none_is_refused(self):
+        reason = build.refusal([], {"events": [listing()]}, bootstrap=False,
+                               board_exists=True)
+        assert reason == "the board had listings and now has none"
+
+    def test_an_empty_board_that_was_already_empty_is_allowed(self):
+        # The scheduled run must not go red twice a day while the calendar is
+        # simply waiting for its first listing.
+        assert build.refusal([], {"events": []}, bootstrap=False,
+                             board_exists=True) is None
+
+    def test_the_very_first_run_needs_bootstrap(self):
+        reason = build.refusal([], {"events": []}, bootstrap=False, board_exists=False)
+        assert "bootstrap" in reason
+        assert build.refusal([], {"events": []}, bootstrap=True,
+                             board_exists=False) is None
+
+    def test_listings_are_always_allowed(self):
+        assert build.refusal([listing()], {"events": [listing()]}, bootstrap=False,
+                             board_exists=True) is None
+        assert build.refusal([listing()], {}, bootstrap=False,
+                             board_exists=False) is None
+
+
 def test_a_listing_never_seen_before_is_first_seen_today():
     current = [listing(id="brand-new")]
     build.carry_first_seen({"events": []}, current)

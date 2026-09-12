@@ -62,8 +62,11 @@ runs.** Every path is on `.github/workflows/calendar.yml`:
 - `workflow_dispatch` with `mode: dry-run` — full build, prints the board, writes
   nothing.
 - A push to `main` that touches an approved listing — merging a listing PR —
-  builds, and commits `public/data/events.json` only when the
-  listings changed. The twice-daily cron waits, commented out, for a feed to sweep.
+  builds, and commits `public/data/events.json` only when the listings changed.
+- The twice-daily cron, at 04:00 and 16:00 UTC. That is the same cadence as the
+  datarail.org/events feed and six hours out of phase with it, so the two never
+  compete. It keeps the board current as listings age off it; a run that finds
+  nothing to list is not a failure, but a board that *loses* its listings is.
 
 If you ever do have a local Python:
 
