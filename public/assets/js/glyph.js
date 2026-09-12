@@ -165,6 +165,18 @@
     return days;
   }
 
+  // An empty board and a board filtered down to nothing are different things,
+  // and telling someone to loosen a filter they never set is nonsense. This is
+  // the first one: there is genuinely nothing listed.
+  function emptyBoard(root) {
+    return '<div class="empty"><h2>Nothing on the board yet</h2>' +
+      "<p>Glyph's calendar is built from what venues and organisers send in, " +
+      "and nothing appears until a person has checked it. If you run a reading, " +
+      "a workshop or an open mic, send us your dates.</p>" +
+      '<p><a class="btn" href="' + (root || "") + 'submit.html#tips">' +
+      "Send in your listings</a></p></div>";
+  }
+
   function renderDays(target, listings) {
     if (!listings.length) {
       target.innerHTML =
@@ -202,7 +214,11 @@
 
     function apply() {
       var shown = all.filter(matches);
-      renderDays(target, shown);
+      if (!all.length) {
+        target.innerHTML = emptyBoard(options.root);
+      } else {
+        renderDays(target, shown);
+      }
       if (countEl) {
         countEl.textContent = shown.length === all.length
           ? all.length + " listings"
@@ -275,7 +291,11 @@
         var banner = options.banner && document.querySelector(options.banner);
         if (banner) banner.hidden = false;
       }
-      renderDays(target, soon);
+      if (!soon.length) {
+        target.innerHTML = emptyBoard(options.root);
+      } else {
+        renderDays(target, soon);
+      }
     }).catch(function () {
       target.innerHTML =
         '<div class="empty"><h2>The board is still being wired up</h2>' +
